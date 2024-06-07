@@ -6,6 +6,7 @@ import { FontFamilyProvider, Fullscreen, Root, Text } from "@react-three/uikit";
 import AnimatedCursor from "react-animated-cursor";
 import CameraManager from "./CameraController";
 import TransitionManager from "./TransitionManager";
+import { PostProcessing } from "./PostProcessing";
 
 export default function ClientLayout({ children }: { children: ReactNode }) {
 
@@ -28,6 +29,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
             />
             <Canvas style={{ position: "fixed", height: "100vh" }} >
                 <CameraManager />
+                <PostProcessing />
                 <CanvasLayout>
                     {children}
                 </CanvasLayout>
