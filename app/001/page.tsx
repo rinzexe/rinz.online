@@ -3,7 +3,6 @@
 import { useThree } from "@react-three/fiber";
 import { Container, Text } from "@react-three/uikit";
 import { common } from "../styles/styles";
-import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
