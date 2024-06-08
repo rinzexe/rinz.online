@@ -34,7 +34,7 @@ export default function TransitionManager({ children }: Readonly<{ children: Rea
         if (children !== displayChildren) {
             setTransitionStage("fadeOut")
             setTimeout(() => {
-                setDisplayChildren(children)
+                /* setDisplayChildren(children) */
                 setTransitionStage("fadeIn")
             }, 1000)
         }
