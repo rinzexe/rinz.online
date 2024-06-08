@@ -10,7 +10,7 @@ import { PostProcessing } from "./PostProcessing";
 import { Stats } from "@react-three/drei";
 
 export default function ClientLayout({ children }: { children: ReactNode }) {
-
+    console.log("clientreset")
     return (
         <>
             <AnimatedCursor
