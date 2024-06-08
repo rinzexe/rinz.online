@@ -86,7 +86,7 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
   const [prevMouse, setPrevMouse] = useState({ x: 0, y: 0 });
   const [mouseDelta, setMouseDelta] = useState({ x: 0, y: 0 });
   const [transitionStart, setTransitionStart] = useState(0);
-  const [fadeOutStarted, setFadeOutStarted] = useState(false);
+  const [prevTransitionStage, setPrevTransitionStage] = useState("fadeIn");
 
   const fluidRef = useRef<FluidEffect>(null);
 
@@ -114,15 +114,19 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
 
     state.gl.autoClear = false;
 
-    if (fadeOutStarted == true && transitionStage == "fadeIn") {
-      setFadeOutStarted(false);
+    if (transitionStage == "fadeOut" && prevTransitionStage == "fadeIn") {
+      setTransitionStart(state.clock.elapsedTime);
+      setPrevTransitionStage("fadeOut");
+      console.log("fadeout started")
+    }
+
+    if (prevTransitionStage == "fadeOut" && transitionStage == "fadeIn") {
+      setPrevTransitionStage("fadeIn");
       setTransitionStart(state.clock.elapsedTime);
     }
 
-
-
     // another dogshit workaround, don't touch until found a better solution
-    if (fluidRef.current != null) {
+    if (fluidRef.current != null && transitionStage == prevTransitionStage) {
       var uTransition = fluidRef.current.uniforms.get('transition') ?? { value: true };
 
       if (transitionStage == "fadeIn") {
@@ -134,7 +138,7 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
           uTransition.value = 0;
         }
       }
-      else if (fadeOutStarted == true) {
+      else if (transitionStage == "fadeOut") {
         var value = state.clock.elapsedTime - transitionStart
         console.log("value" + transitionStart)
         if (value < 1) {
@@ -146,12 +150,6 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
       }
 
       console.log(uTransition.value)
-    }
-
-    if (transitionStage == "fadeOut" && fadeOutStarted == false) {
-      setTransitionStart(state.clock.elapsedTime);
-      setFadeOutStarted(true);
-      console.log("fadeout started")
     }
 
     simManager.compute(splats);

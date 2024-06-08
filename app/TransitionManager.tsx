@@ -21,6 +21,7 @@ export default function TransitionManager({ children }: Readonly<{ children: Rea
     function link(url: any)
     {
         setTransitionStage('fadeOut')
+        router.prefetch(url)
         setTimeout(() => {
             router.push(url)
             setTransitionStage('fadeIn')

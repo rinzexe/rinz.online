@@ -16,7 +16,7 @@ export default function Home() {
 
     const threeState = useThree()
 
-    var texture = useTexture("/000/banner.png")
+    var texture = useTexture("/000/banner.jpg")
     var textureResolution = new THREE.Vector2(texture.source.data.width, texture.source.data.height)
 
     class TestMaterial extends THREE.ShaderMaterial {
@@ -53,15 +53,13 @@ export default function Home() {
         var canvasRes = new THREE.Vector2(0.0, 0.0);
         state.gl.getSize(canvasRes)
         state.scene.traverse((element) => {
-            // this is some fucked up shit. seriosuly. this should not exist under the law of god
+            // this segment is proof that god does not exist
             if (element['material' as keyof typeof element] != undefined) {
-
                 if (element['material' as keyof typeof element]!.constructor.name == FancyMaterial.name) {
                     var fixedElement = element['material' as keyof typeof element] as FancyMaterial
                     fixedElement.uniforms.canvasRes.value = canvasRes
                     fixedElement.uniforms.imageRes.value = textureResolution
                     fixedElement.uniforms.time.value = state.clock.elapsedTime
-                    //element.material.uniforms.mouse.value = state.pointer
                 }
             }
         })
