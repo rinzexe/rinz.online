@@ -145,8 +145,6 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
           uTransition.value = 1;
         }
       }
-
-      console.log(uTransition.value);
     }
 
     simManager.compute(splats);

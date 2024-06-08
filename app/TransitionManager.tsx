@@ -40,6 +40,7 @@ export default function TransitionManager({ children }: Readonly<{ children: Rea
         }
 
         if (test == "old") {
+            console.log("updated children")
             setDisplayChildren(children)
         }
 
