@@ -5,117 +5,116 @@ import { Container, FontFamilyProvider, Fullscreen, Text } from "@react-three/ui
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Stats, useTexture } from '@react-three/drei'
 import { useRouter } from "next/navigation";
-import {common} from "@/app/styles/styles";
+import { common } from "@/app/styles/styles";
 import * as THREE from 'three'
+import { TransitionContext } from "../TransitionManager";
 
 
 export default function Home() {
-  const vw = useThree().size.width;
-  const vh = useThree().size.height;
+    const vw = useThree().size.width;
+    const vh = useThree().size.height;
 
-  const threeState = useThree()
+    const threeState = useThree()
 
-  var texture = useTexture("/000/banner.png")
-  var textureResolution = new THREE.Vector2(texture.source.data.width, texture.source.data.height)
+    var texture = useTexture("/000/banner.png")
+    var textureResolution = new THREE.Vector2(texture.source.data.width, texture.source.data.height)
 
-  class TestMaterial extends THREE.ShaderMaterial {
-    constructor(props: any) {
-      super({
-        fragmentShader: testFrag,
-        vertexShader: vertexShader
-    })
-    }
-  }
-
-  class FancyMaterial extends THREE.ShaderMaterial {
-
-    constructor(props: any) {
-      super({
-        uniforms:
-        {
-          canvasRes: { value: new THREE.Vector2(vw, vh) },
-          imageRes: { value: new THREE.Vector2(textureResolution.x, textureResolution.y) },
-          tex: { value: texture },
-          time: { value: threeState.clock.elapsedTime },
-          mouse: { value: new THREE.Vector2(0, 0) },
-          transition: { value: 0 }
-        },
-        fragmentShader: fragmentShader,
-        vertexShader: vertexShader
-      })
-    }
-  }
-
-  var handleClick = useCallback(() => {
-    window.history.pushState({}, "", "http://localhost:3000/logs/000")
-  }, [])
-
-  useFrame((state, delta) => {
-    var canvasRes = new THREE.Vector2(0.0, 0.0);
-    state.gl.getSize(canvasRes)
-    state.scene.traverse((element) => {
-      if (element['material'] != undefined) {
-
-        if (element.material.constructor.name == FancyMaterial.name) {
-
-          element.material.uniforms.canvasRes.value = canvasRes
-          element.material.uniforms.imageRes.value = textureResolution
-          element.material.uniforms.time.value = state.clock.elapsedTime
-          //element.material.uniforms.mouse.value = state.pointer
+    class TestMaterial extends THREE.ShaderMaterial {
+        constructor(props: any) {
+            super({
+                fragmentShader: testFrag,
+                vertexShader: vertexShader
+            })
         }
-      }
+    }
+
+    class FancyMaterial extends THREE.ShaderMaterial {
+
+        constructor(props: any) {
+            super({
+                uniforms:
+                {
+                    canvasRes: { value: new THREE.Vector2(vw, vh) },
+                    imageRes: { value: new THREE.Vector2(textureResolution.x, textureResolution.y) },
+                    tex: { value: texture },
+                    time: { value: threeState.clock.elapsedTime },
+                    mouse: { value: new THREE.Vector2(0, 0) },
+                    transition: { value: 0 }
+                },
+                fragmentShader: fragmentShader,
+                vertexShader: vertexShader
+            })
+        }
+    }
+
+    const context = useContext(TransitionContext)
+
+    useFrame((state, delta) => {
+        var canvasRes = new THREE.Vector2(0.0, 0.0);
+        state.gl.getSize(canvasRes)
+        state.scene.traverse((element) => {
+            if (element['material' as keyof typeof element] != undefined) {
+
+                if (element['material' as keyof typeof element]!.constructor.name == FancyMaterial.name) {
+                    var fixedElement = element['material' as keyof typeof element] as FancyMaterial
+                    fixedElement.uniforms.canvasRes.value = canvasRes
+                    fixedElement.uniforms.imageRes.value = textureResolution
+                    fixedElement.uniforms.time.value = state.clock.elapsedTime
+                    //element.material.uniforms.mouse.value = state.pointer
+                }
+            }
+        })
+
     })
 
-  })
+    return (
+        <Container flexGrow={1} width={vw} height={vh} backgroundColor="white" flexDirection="column" >
+            <Container backgroundColor="green" panelMaterialClass={FancyMaterial} flexGrow={1}>
+                <Container width="100%" height="100%" positionType="absolute" alignItems="center" justifyContent="center">
+                    <Container onClick={() => context.link("/001")} zIndexOffset={1000} width="50%" height="50%"></Container>
+                </Container>
+                <Container height="100%" positionType="absolute" padding={100} flexDirection="column" justifyContent="flex-end">
+                    <Text {...common.subtitle}>
+                        #000
+                    </Text>
 
-  return (
-    <Container flexGrow={1} width={vw}  height={vh} backgroundColor="white" flexDirection="column" >
-      <Container backgroundColor="green" panelMaterialClass={FancyMaterial} flexGrow={1}>
-        <Container  width="100%" height="100%" positionType="absolute" alignItems="center" justifyContent="center">
-          <Container onClick={handleClick} zIndexOffset={1000} width="50%" height="50%"></Container>
-        </Container>
-        <Container height="100%" positionType="absolute" padding={100} flexDirection="column" justifyContent="flex-end">
-          <Text {...common.subtitle}>
-            #000
-          </Text>
-
-          <Text {...common.title}>
-            Index
-          </Text>
-          <Text  {...common.p}>
-            First post
-          </Text>
-        </Container>
-        <Container height="100%" positionType="absolute" padding={100} flexDirection="column" justifyContent="center">
-          <Text width="35%"  {...common.p}>
-            This is a very descriptive description that describes the things that were described in the description
-          </Text>
-        </Container>
-        <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="center" justifyContent="flex-end">
-          <Text {...common.subtitle}>
-            Scroll down
-          </Text>
-        </Container>
-        <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="row" alignItems="center" justifyContent="flex-end">
-          <Container flexDirection="column">
-            <Text {...common.title}>
-              -
-            </Text>
-            <Text {...common.title}>
-              -
-            </Text>
-            <Text  {...common.title}>
-              -
-            </Text>
-          </Container>
-        </Container>
-      </Container>
-    </Container >
-  );
+                    <Text {...common.title}>
+                        Index
+                    </Text>
+                    <Text  {...common.p}>
+                        First post
+                    </Text>
+                </Container>
+                <Container height="100%" positionType="absolute" padding={100} flexDirection="column" justifyContent="center">
+                    <Text width="35%"  {...common.p}>
+                        This is a very descriptive description that describes the things that were described in the description
+                    </Text>
+                </Container>
+                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="center" justifyContent="flex-end">
+                    <Text {...common.subtitle}>
+                        Scroll down
+                    </Text>
+                </Container>
+                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="row" alignItems="center" justifyContent="flex-end">
+                    <Container flexDirection="column">
+                        <Text {...common.title}>
+                            -
+                        </Text>
+                        <Text {...common.title}>
+                            -
+                        </Text>
+                        <Text  {...common.title}>
+                            -
+                        </Text>
+                    </Container>
+                </Container>
+            </Container>
+        </Container >
+    );
 }
 
 var fragmentShader
-  = /* glsl */ `
+    = /* glsl */ `
 precision highp float;
 precision highp sampler2D;
 
@@ -325,7 +324,7 @@ void main () {
 `;
 
 var vertexShader
-  = /* glsl */ `
+    = /* glsl */ `
 
 precision highp float;
 precision highp sampler2D;
@@ -339,7 +338,7 @@ void main() {
 `;
 
 var testFrag
-  = /* glsl */ `
+    = /* glsl */ `
 precision highp float;
 precision highp sampler2D;
 
