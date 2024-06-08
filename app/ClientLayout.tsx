@@ -7,6 +7,7 @@ import AnimatedCursor from "react-animated-cursor";
 import CameraManager from "./CameraController";
 import TransitionManager from "./TransitionManager";
 import { PostProcessing } from "./PostProcessing";
+import { Stats } from "@react-three/drei";
 
 export default function ClientLayout({ children }: { children: ReactNode }) {
 
@@ -33,6 +34,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
                 <CanvasLayout>
                     {children}
                 </CanvasLayout>
+                <Stats />
             </Canvas>
         </>
     )
