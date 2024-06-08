@@ -33,7 +33,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
                 <CanvasLayout>
                     {children}
                 </CanvasLayout>
-                <Stats />
+                {/* <Stats /> */}
             </Canvas>
         </>
     )
