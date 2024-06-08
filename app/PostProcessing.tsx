@@ -1,5 +1,7 @@
 'use client';
 
+// dogshit code rewrite later pls
+
 import { useFrame, useThree } from "@react-three/fiber";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { Effect } from "postprocessing";
@@ -31,10 +33,13 @@ class FluidEffect extends Effect {
 
 
   update(renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget, deltaTime: any) {
-    // typescript limitation, ignore these errors for now
-    this.uniforms.get('density').value = _density;
-    this.uniforms.get('velocity').value = _velocity;
-    this.uniforms.get('pressure').value = _pressure;
+    // nasty workaround for a typescript bug, please don't touch this
+    var uDensity = this.uniforms.get('density') ?? { value: true };
+    uDensity.value = _density;
+    var uVelocity = this.uniforms.get('velocity') ?? { value: true };
+    uVelocity.value = _velocity;
+    var uPressure = this.uniforms.get('pressure') ?? { value: true };
+    uPressure.value = _pressure;
   }
 }
 
