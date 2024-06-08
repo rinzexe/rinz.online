@@ -8,7 +8,6 @@ import { useContext } from "react";
 import { TransitionContext } from "../TransitionManager";
 
 export default function Page() {
-    const router = useRouter()
 
     const vw = useThree().size.width;
     const vh = useThree().size.height;

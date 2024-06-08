@@ -1,7 +1,17 @@
 export var common = {
     title:
     {
-        fontSize: 30,
-        fontWeight: 1000
+        fontSize: 50,
+        fontWeight: 500,
+        color: "white"
     },
+    subtitle:{
+
+        fontSize: 30,
+        color: "white",
+    },
+    p:{
+        fontSize: 20,
+        color: "white"
+    }
 }
