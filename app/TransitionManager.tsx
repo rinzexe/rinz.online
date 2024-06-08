@@ -32,12 +32,12 @@ export default function TransitionManager({ children }: Readonly<{ children: Rea
     useEffect(() => {
         console.log(transitionStage)
         if (children !== displayChildren) {
-            console.log("CHILDREN NOT THE SAME")
+            console.log("CHILDREN ARE NOT THE SAME")
             setTransitionStage("fadeOut")
-            setTimeout(() => {
-                setDisplayChildren(children)
-                setTransitionStage("fadeIn")
-            }, 1000)
+        }
+        else
+        {
+            console.log("CHILDREN ARE SAME")
         }
     }, [children, setDisplayChildren, displayChildren])
 
