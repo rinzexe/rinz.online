@@ -22,16 +22,18 @@ function useMemoryState(key: any, initialState: any){
   }
 
 export default function TransitionManager({ children }: Readonly<{ children: React.ReactNode }>) {
-    const [displayChildren, setDisplayChildren] = useMemoryState('children', children)
+    const [displayChildren, setDisplayChildren] = useMemoryState('children', null)
+    const [test, setTest] = useMemoryState('text', 'old')
     const [transitionStage, setTransitionStage] = useMemoryState('transitionStage', ['fadeIn'])
     console.log(transitionStage)
 
     useEffect(() => {
         console.log(transitionStage)
-        console.log(displayChildren)
-        console.log(children)
+        
+        
         if (children !== displayChildren) {
-            console.log("CHILDREN ARE NOT THE SAME")
+            console.log(test)
+            setTest('new')
             setTransitionStage("fadeOut")
         }
         else
@@ -43,7 +45,6 @@ export default function TransitionManager({ children }: Readonly<{ children: Rea
     return (
         <>
             <PostProcessing transitionStage={transitionStage} />
-            {children}
             {displayChildren}
         </>
     )
