@@ -53,6 +53,7 @@ export default function Home() {
         var canvasRes = new THREE.Vector2(0.0, 0.0);
         state.gl.getSize(canvasRes)
         state.scene.traverse((element) => {
+            // this is some fucked up shit. seriosuly. this should not exist under the law of god
             if (element['material' as keyof typeof element] != undefined) {
 
                 if (element['material' as keyof typeof element]!.constructor.name == FancyMaterial.name) {
