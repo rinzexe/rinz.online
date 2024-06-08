@@ -25,9 +25,6 @@ export default function TransitionManager({ children }: Readonly<{ children: Rea
     const [displayChildren, setDisplayChildren] = useMemoryState('children', children)
     const [transitionStage, setTransitionStage] = useMemoryState('transitionStage', ['fadeIn'])
     console.log(transitionStage)
-    useEffect(() => {
-        setTransitionStage("fadeIn")
-    }, [])
 
     useEffect(() => {
         console.log(transitionStage)
@@ -44,7 +41,7 @@ export default function TransitionManager({ children }: Readonly<{ children: Rea
     return (
         <>
             <PostProcessing transitionStage={transitionStage} />
-            {displayChildren}
+            {children}
         </>
     )
 }
