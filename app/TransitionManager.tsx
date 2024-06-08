@@ -44,6 +44,7 @@ export default function TransitionManager({ children }: Readonly<{ children: Rea
         <>
             <PostProcessing transitionStage={transitionStage} />
             {children}
+            {displayChildren}
         </>
     )
 }
