@@ -86,6 +86,7 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
   const [prevMouse, setPrevMouse] = useState({ x: 0, y: 0 });
   const [mouseDelta, setMouseDelta] = useState({ x: 0, y: 0 });
   const [transitionStart, setTransitionStart] = useState(0);
+  const [fadeOutStarted, setFadeOutStarted] = useState(false);
 
   const fluidRef = useRef<FluidEffect>(null);
 
@@ -117,10 +118,6 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
       setTransitionStart(state.clock.elapsedTime);
     }
 
-    if (transitionStage == "fadeOut") {
-      setTransitionStart(state.clock.elapsedTime);
-    }
-
 
 
     // another dogshit workaround, don't touch until found a better solution
@@ -136,8 +133,9 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
           uTransition.value = 0;
         }
       }
-      else if (transitionStage == "fadeOut") { 
+      else if (fadeOutStarted == true) {
         var value = state.clock.elapsedTime - transitionStart
+        console.log("value" + transitionStart)
         if (value < 1) {
           uTransition.value = value;
         }
@@ -145,6 +143,14 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
           uTransition.value = 1;
         }
       }
+
+      console.log(uTransition.value)
+    }
+
+    if (transitionStage == "fadeOut" && fadeOutStarted == false) {
+      setTransitionStart(state.clock.elapsedTime);
+      setFadeOutStarted(true);
+      console.log("fadeout started")
     }
 
     simManager.compute(splats);
