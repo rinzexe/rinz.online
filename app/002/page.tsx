@@ -163,7 +163,7 @@ function Category({ name, reviews }: { name: string, reviews: ReviewType[] }) {
 
 function Review({ review }: { review: ReviewType }) {
     return (
-        <Container hover={{ backgroundColor: "green" }} paddingTop={5} width="100%" justifyContent="space-between" alignItems="center" padding={10} borderBottomWidth={1.4}>
+        <Container hover={{ backgroundColor: "white" }} paddingTop={5} width="100%" justifyContent="space-between" alignItems="center" padding={10} borderBottomWidth={1.4}>
             <Text {...common.subtitle}>
                 {review.title}
             </Text>
