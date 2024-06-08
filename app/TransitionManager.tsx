@@ -1,10 +1,30 @@
 import { useEffect, useState } from "react";
 import { PostProcessing } from "./PostProcessing";
 
+const memoryState: any = {};
+
+function useMemoryState(key: any, initialState: any){
+    const [state, setState] = useState(() => {
+      const hasMemoryValue = Object.prototype.hasOwnProperty.call(memoryState, key);
+      if (hasMemoryValue) {
+        return memoryState[key]
+      } else {
+        return typeof initialState === 'function' ? initialState() : initialState;
+      }
+    });
+  
+    function onChange(nextState: any) {
+      memoryState[key] = nextState;
+      setState(nextState);
+    }
+  
+    return [state, onChange];
+  }
+
 export default function TransitionManager({ children }: Readonly<{ children: React.ReactNode }>) {
     console.log("reset")
-    const [displayChildren, setDisplayChildren] = useState(children)
-    const [transitionStage, setTransitionStage] = useState("fadeIn")
+    const [displayChildren, setDisplayChildren] = useMemoryState('children', children)
+    const [transitionStage, setTransitionStage] = useMemoryState('transitionStage', ['fadeIn'])
     useEffect(() => {
         setTransitionStage("fadeIn")
     }, [])
