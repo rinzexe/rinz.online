@@ -19,7 +19,7 @@
     "react-animated-cursor": "^2.11.2",
     "react-dom": "^18",
     "three": "^0.165.0",
-    "vexel-tools": "^0.0.4"
+    "vexel-tools": "^0.1.3"
   },
   "devDependencies": {
     "@types/node": "^20",

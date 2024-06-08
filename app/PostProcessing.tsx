@@ -5,7 +5,7 @@ import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { Effect } from "postprocessing";
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { Texture, Uniform, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
-import FluidSim from "vexel-tools";
+import {FluidSim} from "vexel-tools";
 
 var _density: any;
 var _velocity: any;
@@ -14,16 +14,15 @@ var _pressure: any;
 class FluidEffect extends Effect {
   constructor({ density, velocity, pressure }: { density: any, velocity: any, pressure: any }) {
     const uniformMap = new Map<string, Uniform>()
+    uniformMap.set('density', new Uniform(null))
+    uniformMap.set('velocity', new Uniform(null))
+    uniformMap.set('pressure', new Uniform(null))
+    uniformMap.set('transition', new Uniform(null))
+    uniformMap.set('transitionTex', new Uniform(null))
+    uniformMap.set('activeTex', new Uniform(null))
+    uniformMap.set('mouse', new Uniform(new Vector2(0.0, 0.0)))
     super('FluidEffect', fluidShader.fragment, {
-      uniforms: new Map<string, Uniform>([
-        ['density', new Uniform(null)],
-        ['velocity', new Uniform(null)],
-        ['pressure', new Uniform(null)],
-        ['transition', new Uniform(null)],
-        ['transitionTex', new Uniform(null)],
-        ['activeTex', new Uniform(null)],
-        ['mouse', new Uniform(new Vector2(0.0, 0.0))]
-      ])
+      uniforms: uniformMap
     })
     _density = density;
     _velocity = velocity;
