@@ -7,7 +7,28 @@ import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { Effect } from "postprocessing";
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { Texture, Uniform, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
-import {FluidSim} from "vexel-tools";
+import { FluidSim } from "vexel-tools";
+
+function lerp(a: number, b: number, alpha: number) {
+  return a + alpha * (b - a)
+}
+
+const useMousePosition = () => {
+  const [
+    mousePosition,
+    setMousePosition
+  ] = useState({ x: 0, y: 0 });
+  useEffect(() => {
+    const updateMousePosition = (ev: any) => {
+      setMousePosition({ x: ev.clientX * window.devicePixelRatio, y: ev.clientY * window.devicePixelRatio });
+    };
+    window.addEventListener('mousemove', updateMousePosition);
+    return () => {
+      window.removeEventListener('mousemove', updateMousePosition);
+    };
+  }, []);
+  return mousePosition;
+};
 
 var _density: any;
 var _velocity: any;
@@ -19,9 +40,7 @@ class FluidEffect extends Effect {
     uniformMap.set('density', new Uniform(null))
     uniformMap.set('velocity', new Uniform(null))
     uniformMap.set('pressure', new Uniform(null))
-    uniformMap.set('transition', new Uniform(null))
-    uniformMap.set('transitionTex', new Uniform(null))
-    uniformMap.set('activeTex', new Uniform(null))
+    uniformMap.set('transition', new Uniform(1))
     uniformMap.set('mouse', new Uniform(new Vector2(0.0, 0.0)))
     super('FluidEffect', fluidShader.fragment, {
       uniforms: uniformMap
@@ -43,23 +62,6 @@ class FluidEffect extends Effect {
   }
 }
 
-const useMousePosition = () => {
-  const [
-    mousePosition,
-    setMousePosition
-  ] = useState({ x: 0, y: 0 });
-  useEffect(() => {
-    const updateMousePosition = (ev: any) => {
-      setMousePosition({ x: ev.clientX * window.devicePixelRatio, y: ev.clientY * window.devicePixelRatio });
-    };
-    window.addEventListener('mousemove', updateMousePosition);
-    return () => {
-      window.removeEventListener('mousemove', updateMousePosition);
-    };
-  }, []);
-  return mousePosition;
-};
-
 var settings = {
   simRes: 1 / 1000,
   curl: 0,
@@ -80,9 +82,12 @@ interface Splats {
   radius: number
 }
 
-export function PostProcessing() {
+export function PostProcessing({ transitionStage }: { transitionStage: any }) {
   const [prevMouse, setPrevMouse] = useState({ x: 0, y: 0 });
   const [mouseDelta, setMouseDelta] = useState({ x: 0, y: 0 });
+  const [transitionStart, setTransitionStart] = useState(0);
+
+  const fluidRef = useRef<FluidEffect>(null);
 
   const mousePos = useMousePosition();
 
@@ -95,16 +100,7 @@ export function PostProcessing() {
     [width, height, renderer],
   );
 
-  var splats: Splats[] = [{
-    x: 0,
-    y: 0,
-    dx: 0,
-    dy: 0,
-    radius: 0.0001
-  }]
-
-
-  const Fluid = forwardRef(({ density, velocity, pressure }: {density: any, velocity: any, pressure: any}, ref) => {
+  const Fluid = forwardRef(({ density, velocity, pressure }: { density: any, velocity: any, pressure: any }, ref) => {
     const effect = useMemo(() => new FluidEffect({ density, velocity, pressure }), [density, velocity, pressure])
     return <primitive ref={ref} object={effect} dispose={null} />
   })
@@ -113,10 +109,45 @@ export function PostProcessing() {
   useFrame((state, delta) => {
     setMouseDelta({ x: mousePos.x - prevMouse.x, y: mousePos.y - prevMouse.y });
     var mouseMultiplier = 10;
-    splats = [{ x: mousePos.x, y: mousePos.y, dx: mouseDelta.x / mouseMultiplier, dy: mouseDelta.y / mouseMultiplier, radius: 0.0001 }];
-
+    var splats = [{ x: mousePos.x, y: mousePos.y, dx: mouseDelta.x / mouseMultiplier, dy: mouseDelta.y / mouseMultiplier, radius: 0.0001 }];
 
     state.gl.autoClear = false;
+
+    if (transitionStart == 0 && transitionStage == "fadeIn") {
+      setTransitionStart(state.clock.elapsedTime);
+    }
+
+    if (transitionStage == "fadeOut") {
+      setTransitionStart(state.clock.elapsedTime);
+    }
+
+
+
+    // another dogshit workaround, don't touch until found a better solution
+    if (fluidRef.current != null) {
+      var uTransition = fluidRef.current.uniforms.get('transition') ?? { value: true };
+
+      if (transitionStage == "fadeIn") {
+        var value = 1 - (state.clock.elapsedTime - transitionStart)
+        if (value > 0) {
+          uTransition.value = value;
+        }
+        else {
+          uTransition.value = 0;
+        }
+      }
+      else if (transitionStage == "fadeOut") { 
+        var value = state.clock.elapsedTime - transitionStart
+        if (value < 1) {
+          uTransition.value = value;
+        }
+        else {
+          uTransition.value = 1;
+        }
+      }
+
+      console.log(uTransition.value);
+    }
 
     simManager.compute(splats);
     state.gl.setRenderTarget(null);
@@ -126,7 +157,7 @@ export function PostProcessing() {
 
   return (
     <EffectComposer>
-      <Fluid density={simManager.densityTexture} velocity={simManager.velocityTexture} pressure={simManager.pressureTexture} />
+      <Fluid ref={fluidRef} density={simManager.densityTexture} velocity={simManager.velocityTexture} pressure={simManager.pressureTexture} />
     </EffectComposer>
   )
 }
@@ -233,9 +264,6 @@ float snoise(vec3 v)
     uniform sampler2D velocity;
     uniform sampler2D pressure;
 
-    uniform sampler2D transitionTex;
-    uniform sampler2D activeTex;
-
     uniform float transition;
 
     uniform vec2 mouse;
@@ -253,7 +281,7 @@ float snoise(vec3 v)
       return minmax((value - 0.5) * amount + 0.5);
     }
 
-    vec4 fluidDistortion(vec2 uv, float targetID)
+    vec4 fluidDistortion(vec2 uv)
     {
       vec4 velocityTex = texture2D(velocity, uv);
       vec4 densityTex = texture2D(density, uv);
@@ -268,13 +296,6 @@ float snoise(vec3 v)
       float r = texture2D(inputBuffer, uvr).r;
       float g = texture2D(inputBuffer, uvg).g;
       float b = texture2D(inputBuffer, uvb).b;
-
-      if (targetID == 1.0)
-      {
-        r = texture2D(transitionTex, uvr).r;
-        g = texture2D(transitionTex, uvg).g;
-        b = texture2D(transitionTex, uvb).b;
-      }
 
       return vec4(r, g, b, 1.0);
     }
@@ -291,9 +312,8 @@ float snoise(vec3 v)
 
         vec2 uncenteredUv = transitionUv * 0.5 + vec2(0.5);
 
-        float bufferID = cramp(transitionValue + transitionNoise, T_FEATHER);
 
-        vec4 fluidDistortionColor = fluidDistortion(mix(uv, uncenteredUv, bufferID), mix(1.0, 0.0, bufferID)); 
+        vec4 fluidDistortionColor = fluidDistortion(uv); 
 
         outputColor = fluidDistortionColor;
     }

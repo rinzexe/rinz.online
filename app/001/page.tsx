@@ -13,7 +13,7 @@ export default function Page() {
 
     return (
         <Container flexGrow={1} width={vw} height={vh} backgroundColor="white" flexDirection="column">
-            <Text onClick={() => router.push('/000')} {...common.title} >
+            <Text marginLeft={200} onClick={() => router.push('/000')} {...common.title} >
                 001
             </Text>
         </Container>

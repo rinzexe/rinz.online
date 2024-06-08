@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+import { PostProcessing } from "./PostProcessing";
 
 export default function TransitionManager({ children }: Readonly<{ children: React.ReactNode }>) {
     const [displayChildren, setDisplayChildren] = useState(children)
-    const [transitionStage, setTransitionStage] = useState("fadeOut")
+    const [transitionStage, setTransitionStage] = useState("fadeIn")
     useEffect(() => {
         setTransitionStage("fadeIn")
     }, [])
@@ -11,11 +12,16 @@ export default function TransitionManager({ children }: Readonly<{ children: Rea
         console.log(transitionStage)
         if (children !== displayChildren) {
             setTransitionStage("fadeOut")
+            setTimeout(() => {
+                setDisplayChildren(children)
+                setTransitionStage("fadeIn")
+            }, 1000)
         }
     }, [children, setDisplayChildren, displayChildren])
 
     return (
         <>
+            <PostProcessing transitionStage={transitionStage} />
             {displayChildren}
         </>
     )

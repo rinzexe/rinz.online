@@ -30,7 +30,6 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
             />
             <Canvas style={{ position: "fixed", height: "100vh" }} >
                 <CameraManager />
-                <PostProcessing />
                 <CanvasLayout>
                     {children}
                 </CanvasLayout>
@@ -51,7 +50,7 @@ function CanvasLayout({ children }: { children: ReactNode }) {
                 bold: "/fonts/PPTelegraf-UltraBold-msdf.json",
             }}
         >
-            <Root width={vw} height={vh}  flexDirection="column">
+            <Root width={vw} height={vh} flexDirection="column">
                 <TransitionManager>
                     {children}
                 </TransitionManager>
