@@ -114,7 +114,8 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
 
     state.gl.autoClear = false;
 
-    if (transitionStart == 0 && transitionStage == "fadeIn") {
+    if (fadeOutStarted == true && transitionStage == "fadeIn") {
+      setFadeOutStarted(false);
       setTransitionStart(state.clock.elapsedTime);
     }
 
