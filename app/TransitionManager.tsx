@@ -22,7 +22,7 @@ function useMemoryState(key: any, initialState: any){
   }
 
 export default function TransitionManager({ children }: Readonly<{ children: React.ReactNode }>) {
-    const [displayChildren, setDisplayChildren] = useMemoryState('children', null)
+    const [displayChildren, setDisplayChildren] = useMemoryState('children', children)
     const [test, setTest] = useMemoryState('text', 'old')
     const [transitionStage, setTransitionStage] = useMemoryState('transitionStage', ['fadeIn'])
     console.log(transitionStage)
