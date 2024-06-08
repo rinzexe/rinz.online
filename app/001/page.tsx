@@ -15,7 +15,7 @@ export default function Page() {
     const context = useContext(TransitionContext)
 
     return (
-        <Container flexGrow={1} width={vw} height={vh} backgroundColor="white" flexDirection="column">
+        <Container flexGrow={1} width={vw} height={vh} backgroundColor="black" flexDirection="column">
             <Text marginLeft={200} onClick={() => {context.link("/000")}} {...common.title} >
                 001
             </Text>
