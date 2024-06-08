@@ -126,10 +126,10 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
     }
 
     // another dogshit workaround, don't touch until found a better solution
-    if (fluidRef.current != null && transitionStage == prevTransitionStage) {
+    if (fluidRef.current != null) {
       var uTransition = fluidRef.current.uniforms.get('transition') ?? { value: true };
 
-      if (transitionStage == "fadeIn") {
+      if (prevTransitionStage == "fadeIn") {
         var value = 1 - (state.clock.elapsedTime - transitionStart)
         if (value > 0) {
           uTransition.value = value;
@@ -138,7 +138,7 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
           uTransition.value = 0;
         }
       }
-      else if (transitionStage == "fadeOut") {
+      else if (prevTransitionStage == "fadeOut") {
         var value = state.clock.elapsedTime - transitionStart
         console.log("value" + transitionStart)
         if (value < 1) {
