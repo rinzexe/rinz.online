@@ -3,7 +3,7 @@ export var common = {
     {
         fontSize: 50,
         fontWeight: 500,
-        color: "white"
+        color: "white",
     },
     subtitle:{
 

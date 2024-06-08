@@ -11,6 +11,61 @@ import { TransitionContext } from "../TransitionManager";
 
 var glsl = require('glslify')
 
+interface ReviewType {
+    title: string,
+    cover: string,
+    overall: string
+}
+
+const visualNovelReviews: ReviewType[] = [
+    {
+        title: "Wonderful Everyday",
+        cover: "z",
+        overall: "8"
+    },
+    {
+        title: "Song of Saya",
+        cover: "z",
+        overall: "7"
+    },
+    {
+        title: "Danganronpa 1",
+        cover: "z",
+        overall: "6"
+    },
+    {
+        title: "Chaos:Head",
+        cover: "z",
+        overall: "3"
+    },
+]
+
+const gameReviews: ReviewType[] = [
+    {
+        title: "Elden Ring",
+        cover: "z",
+        overall: "8"
+    },
+    {
+        title: "ICO",
+        cover: "z",
+        overall: "7"
+    },
+    {
+        title: "Yakuza 0",
+        cover: "z",
+        overall: "6"
+    },
+]
+
+const movieReviews: ReviewType[] = [
+    {
+        title: "Seven",
+        cover: "z",
+        overall: "4"
+    },
+]
+
 export default function Home() {
     const vw = useThree().size.width;
     const vh = useThree().size.height;
@@ -62,63 +117,61 @@ export default function Home() {
 
     return (
         <Container flexGrow={1} width={vw} height={vh} backgroundColor="white" flexDirection="column" >
-            <Container backgroundColor="green" panelMaterialClass={FancyMaterial} flexGrow={1}>
-                <Container width="100%" height="100%" positionType="absolute" alignItems="center" justifyContent="center">
-                    <Container onClick={() => context.link("/001")} zIndexOffset={1000} width="50%" height="50%"></Container>
-                </Container>
-                <Container height="100%" positionType="absolute" padding={100} flexDirection="column" justifyContent="flex-end">
-                    <Text {...common.subtitle}>
-                        #001
-                    </Text>
-
+            <Container backgroundColor="green" flexDirection="column" gap={100} panelMaterialClass={FancyMaterial} flexGrow={1}>
+                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="flex-start" justifyContent="flex-end">
                     <Text {...common.title}>
-                        Portfolio
+                        Reviews
                     </Text>
-                    <Text  {...common.p}>
-                        For employers
-                    </Text>
-                </Container>
-                <Container height="100%" positionType="absolute" padding={100} flexDirection="column" justifyContent="center">
-                    <Text width="35%"  {...common.p}>
-                        This is a very descriptive description that describes the things that were described in the description
+                    <Text onClick={() => context.link("/000")} {...common.p}>
+                        {"<    Return to 000"}
                     </Text>
                 </Container>
-                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="center" justifyContent="flex-end">
-                    <Text {...common.subtitle}>
-                        Scroll down
-                    </Text>
-                </Container>
-                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="center" justifyContent="flex-start">
-                    <Text {...common.p}>
-                        rinz.online
-                    </Text>
-                </Container>
-                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="flex-end" justifyContent="flex-end">
-                    <Text {...common.p}>
-                        V0.01
-                    </Text>
-                </Container>
-                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="flex-start" justifyContent="flex-start">
-                    <Text {...common.subtitle}>
-                        16/06/2004
-                    </Text>
-                </Container>
-                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="row" alignItems="center" justifyContent="flex-end">
-                    <Container flexDirection="column">
-                        <Text {...common.title}>
-                            -
-                        </Text>
-                        <Text {...common.title}>
-                            -
-                        </Text>
-                        <Text  {...common.title}>
-                            -
-                        </Text>
-                    </Container>
+                <Container width="100%" height="100%" flexDirection="column" padding={100} >
+                    <Category name="Visual novels" reviews={visualNovelReviews} />
+                    <Category name="Games" reviews={gameReviews} />
+                    <Category name="Movies" reviews={movieReviews} />
                 </Container>
             </Container>
         </Container >
     );
+}
+
+function Category({ name, reviews }: { name: string, reviews: ReviewType[] }) {
+    return (
+        <Container width="100%" flexDirection="column" alignItems="flex-start" justifyContent="flex-start" >
+            <Container width="100%" flexDirection="column" alignItems="flex-start" justifyContent="flex-start">
+                <Text {...common.title}>
+                    {name}
+                </Text>
+            </Container>
+            <Container width="100%" paddingLeft="50%" flexDirection="column" justifyContent="flex-start">
+                <Container paddingTop={5} width="100%" justifyContent="space-between" alignItems="center" padding={10}>
+                    <Text {...common.p}>
+                        Title
+                    </Text>
+                    <Text {...common.p}>
+                        Rating
+                    </Text>
+                </Container>
+                {reviews.map((review, index) => {
+                    return <Review key={index} review={review} />
+                })}
+            </Container>
+        </Container>
+    )
+}
+
+function Review({ review }: { review: ReviewType }) {
+    return (
+        <Container hover={{ backgroundColor: "green" }} paddingTop={5} width="100%" justifyContent="space-between" alignItems="center" padding={10} borderBottomWidth={1.4}>
+            <Text {...common.subtitle}>
+                {review.title}
+            </Text>
+            <Text {...common.subtitle}>
+                {review.overall} / 10
+            </Text>
+        </Container>
+    )
 }
 
 var fragmentShader
@@ -329,7 +382,7 @@ void main () {
     vec3 contrastColor = adjustContrast(color, 1.2);
     vec3 exposureColor = adjustExposure(contrastColor, -0.1);
 
-    gl_FragColor = vec4(exposureColor, 1.0);
+    gl_FragColor = vec4(exposureColor * 0.1, 1.0);
 }
 `);
 
