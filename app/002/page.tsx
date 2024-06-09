@@ -196,7 +196,7 @@ function Review({ review, id }: { review: ReviewType, id: number }) {
     useFrame((state, delta) => {
         const worldPos = new THREE.Vector3()
         groupRef.current!.getWorldPosition(worldPos)
-        const rotY = lerp(groupRef.current!.rotation.y, worldPos.y / 5, 0.1)
+        const rotY = lerp(groupRef.current!.rotation.y, worldPos.y / 5, 0.03)
         groupRef.current!.rotation.y = rotY
         groupRef.current!.position.y = -id
 

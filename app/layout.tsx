@@ -17,7 +17,7 @@ export default function RootLayout({
   console.log("rootreset")
   return (
     <html lang="en">
-      <body>
+      <body className="bg-black">
         <ClientLayout>
           {children}
         </ClientLayout>

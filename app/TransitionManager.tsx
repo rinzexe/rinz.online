@@ -20,7 +20,7 @@ export default function TransitionManager({ children }: Readonly<{ children: Rea
 
     function link(url: any)
     {
-        /* setTransitionStage('fadeOut') */
+        setTransitionStage('fadeOut')
         setTimeout(() => {
             location.href = url
             /* setTransitionStage('fadeIn') */
