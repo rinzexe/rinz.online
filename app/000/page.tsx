@@ -8,10 +8,11 @@ import { useRouter } from "next/navigation";
 import { common } from "@/app/styles/styles";
 import * as THREE from 'three'
 import { TransitionContext } from "../TransitionManager";
+import UIkit from "../components/UIKit";
 
 var glsl = require('glslify')
 
-export default function Home() {
+export default function Page() {
     const vw = useThree().size.width;
     const vh = useThree().size.height;
 
@@ -19,7 +20,7 @@ export default function Home() {
 
     console.log(fragmentShader)
 
-    var texture = useTexture("/000/banner.jpg")
+    var texture = useTexture("/images/4.png")
     var textureResolution = new THREE.Vector2(texture.source.data.width, texture.source.data.height)
 
     class FancyMaterial extends THREE.ShaderMaterial {
@@ -54,6 +55,7 @@ export default function Home() {
                     fixedElement.uniforms.canvasRes.value = canvasRes
                     fixedElement.uniforms.imageRes.value = textureResolution
                     fixedElement.uniforms.time.value = state.clock.elapsedTime
+                    fixedElement.uniforms.mouse.value = new THREE.Vector2(state.pointer.x, state.pointer.y)
                 }
             }
         })
@@ -61,63 +63,65 @@ export default function Home() {
     })
 
     return (
-        <Container flexGrow={1} width={vw} height={vh} backgroundColor="white" flexDirection="column" >
-            <Container backgroundColor="green" panelMaterialClass={FancyMaterial} flexGrow={1}>
-                <Container width="100%" height="100%" positionType="absolute" alignItems="center" justifyContent="center">
-                    <Container onClick={() => context.link("/001")} zIndexOffset={1000} width="50%" height="50%"></Container>
-                </Container>
-                <Container height="100%" positionType="absolute" padding={100} flexDirection="column" justifyContent="flex-end">
-                    <Text {...common.subtitle}>
-                        #001
-                    </Text>
+        <UIkit>
+            <Container flexGrow={1} width={vw} height={vh} backgroundColor="white" flexDirection="column" >
+                <Container backgroundColor="green" panelMaterialClass={FancyMaterial} flexGrow={1}>
+                    <Container width="100%" height="100%" positionType="absolute" alignItems="center" justifyContent="center">
+                        <Container onClick={() => context.link("/002")} zIndexOffset={1000} width="50%" height="50%"></Container>
+                    </Container>
+                    <Container height="100%" positionType="absolute" padding={100} flexDirection="column" justifyContent="flex-end">
+                        <Text {...common.subtitle}>
+                            #001
+                        </Text>
 
-                    <Text {...common.title}>
-                        Portfolio
-                    </Text>
-                    <Text  {...common.p}>
-                        For employers
-                    </Text>
-                </Container>
-                <Container height="100%" positionType="absolute" padding={100} flexDirection="column" justifyContent="center">
-                    <Text width="35%"  {...common.p}>
-                        This is a very descriptive description that describes the things that were described in the description
-                    </Text>
-                </Container>
-                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="center" justifyContent="flex-end">
-                    <Text {...common.subtitle}>
-                        Scroll down
-                    </Text>
-                </Container>
-                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="center" justifyContent="flex-start">
-                    <Text {...common.p}>
-                        rinz.online
-                    </Text>
-                </Container>
-                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="flex-end" justifyContent="flex-end">
-                    <Text {...common.p}>
-                        V0.01
-                    </Text>
-                </Container>
-                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="flex-start" justifyContent="flex-start">
-                    <Text {...common.subtitle}>
-                        16/06/2004
-                    </Text>
-                </Container>
-                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="row" alignItems="center" justifyContent="flex-end">
-                    <Container flexDirection="column">
                         <Text {...common.title}>
-                            -
+                            Portfolio
                         </Text>
-                        <Text {...common.title}>
-                            -
-                        </Text>
-                        <Text  {...common.title}>
-                            -
+                        <Text  {...common.p}>
+                            For employers
                         </Text>
                     </Container>
+                    <Container height="100%" positionType="absolute" padding={100} flexDirection="column" justifyContent="center">
+                        <Text width="35%"  {...common.p}>
+                            This is a very descriptive description that describes the things that were described in the description
+                        </Text>
+                    </Container>
+                    <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="center" justifyContent="flex-end">
+                        <Text {...common.subtitle}>
+                            Scroll down
+                        </Text>
+                    </Container>
+                    <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="center" justifyContent="flex-start">
+                        <Text {...common.p}>
+                            rinz.online
+                        </Text>
+                    </Container>
+                    <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="flex-end" justifyContent="flex-end">
+                        <Text {...common.p}>
+                            V0.01
+                        </Text>
+                    </Container>
+                    <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="flex-start" justifyContent="flex-start">
+                        <Text {...common.subtitle}>
+                            16/06/2004
+                        </Text>
+                    </Container>
+                    <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="row" alignItems="center" justifyContent="flex-end">
+                        <Container flexDirection="column">
+                            <Text {...common.title}>
+                                -
+                            </Text>
+                            <Text {...common.title}>
+                                -
+                            </Text>
+                            <Text  {...common.title}>
+                                -
+                            </Text>
+                        </Container>
+                    </Container>
                 </Container>
-            </Container>
-        </Container >
+            </Container >
+        </UIkit>
     );
 }
 
@@ -132,6 +136,8 @@ uniform sampler2D tex;
 
 uniform vec2 imageRes;
 uniform vec2 canvasRes;
+
+uniform vec2 mouse;
 
 uniform float time;
 uniform float transition;
@@ -275,7 +281,7 @@ vec3 adjustContrast(vec3 color, float value) {
 
 float minmax(float value)
 {
-    return min(max(value * 1.5, 0.0), 1.0);
+    return min(max(value, 0.0), 1.0);
 }
 
 float FREQ1 = 2.0;
@@ -318,16 +324,16 @@ void main () {
 
 // #endregion
 
-// #region transition
-    uv = uv * (transition + 1.0);
-// #endregion
 
     vec3 vignette = 1.0 - vec3(pow(distance(vec2(0.0), offsetUv), 0.5));
 
     vec3 color = texture2D(tex, uv).xyz * vec3(vignette.x * 1.0, vignette.yz);
 
     vec3 contrastColor = adjustContrast(color, 1.2);
-    vec3 exposureColor = adjustExposure(contrastColor, -0.1);
+
+    float mouseArea = (1.0 - minmax(distance(uv * (0.5 + (1.0 / 10.0) + (snoise(vec3(uv * 10.0, 0.0))) / 10.0), (mouse / 2.0 + 0.5)) * 5.0)) * 5.0;
+    vec3 exposureColor = adjustExposure(contrastColor, -0.8);
+    exposureColor = adjustExposure(contrastColor, -mouseArea);
 
     gl_FragColor = vec4(exposureColor, 1.0);
 }

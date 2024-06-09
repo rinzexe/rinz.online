@@ -110,7 +110,7 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
   useFrame((state, delta) => {
     setMouseDelta({ x: mousePos.x - prevMouse.x, y: mousePos.y - prevMouse.y });
     var mouseMultiplier = 10;
-    var splats = [{ x: mousePos.x, y: mousePos.y, dx: mouseDelta.x / mouseMultiplier, dy: mouseDelta.y / mouseMultiplier, radius: 0.001 }];
+    var splats = [{ x: mousePos.x, y: mousePos.y, dx: mouseDelta.x / mouseMultiplier, dy: mouseDelta.y / mouseMultiplier, radius: 0.0001 }];
 
     state.gl.autoClear = false;
 

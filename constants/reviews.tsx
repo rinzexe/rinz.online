@@ -57,3 +57,23 @@ export const movieReviews: ReviewType[] = [
         overall: "7"
     },
 ]
+
+export interface CategoryType {
+    title: string,
+    reviews: ReviewType[]
+}
+
+export const reviewCategories: CategoryType[] = [
+    {
+        title: "Visual Novels",
+        reviews: visualNovelReviews
+    },
+    {
+        title: "Games",
+        reviews: gameReviews
+    },
+    {
+        title: "Movies",
+        reviews: movieReviews
+    },
+]

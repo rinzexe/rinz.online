@@ -2,13 +2,13 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Container, FontFamilyProvider, Fullscreen, Text } from "@react-three/uikit";
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, use, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { OrbitControls, Stats, Text3D, useTexture } from '@react-three/drei'
 import { useRouter } from "next/navigation";
 import { common } from "@/app/styles/styles";
 import * as THREE from 'three'
 import { TransitionContext } from "../TransitionManager";
-import { gameReviews, movieReviews, ReviewType, visualNovelReviews } from "@/constants/reviews";
+import { gameReviews, movieReviews, reviewCategories, ReviewType, visualNovelReviews } from "@/constants/reviews";
 import UIkit from "../components/UIKit";
 import CameraController from "../components/CameraController";
 
@@ -36,63 +36,73 @@ class ReviewBackgroundMaterial extends THREE.ShaderMaterial {
 }
 
 export default function Page() {
-    const [offset, setOffset] = useState(0);
     const [targetOffset, setTargetOffset] = useState(0);
+    const [activeCategory, setActiveCategory] = useState(0);
 
     const groupRef = useRef<THREE.Group>(null)
 
-    useEffect(() => {
-        function onScroll(e: any) {
-            var oldOffset = offset
-            setOffset(oldOffset - e.deltaY / 100)
-        }
-        window.removeEventListener('wheel', (e) => onScroll(e));
-        window.addEventListener('wheel', (e) => onScroll(e), { passive: true });
-        return () => window.removeEventListener('wheel', (e) => onScroll(e));
-    }, []);
+    function handleWheel(e: WheelEvent) {
+        setTargetOffset(targetOffset + e.deltaY / 100)
+    }
+
+    function minMax(input:number )
+    {
+        return Math.min(Math.max(input, 0), reviewCategories.length - 1)
+    }
+
+    function next() {
+
+        setActiveCategory(minMax(activeCategory + 1))
+        setTargetOffset(0)
+    }
+
+    function previous() {
+        setActiveCategory(minMax(activeCategory - 1))
+        setTargetOffset(0)
+    }
 
     useFrame((state, delta) => {
-        setTargetOffset(offset + targetOffset)
-        setOffset(0)
-        const posY = lerp(groupRef.current!.position.y, targetOffset, 0.02)
-        groupRef.current!.position.y = posY
+        reviewCategories.forEach((category, index) => {
+            if (activeCategory == index) {
+                const posY = lerp(groupRef.current!.children[index].position.y, targetOffset, 0.02)
+                groupRef.current!.children[index].position.y = posY
+            }
+            else {
+                const posY = lerp(groupRef.current!.children[index].position.y, 0, 0.02)
+                groupRef.current!.children[index].position.y = posY
+            }
+
+            const posX = lerp(groupRef.current!.position.x, -activeCategory * 10, 0.01)
+            groupRef.current!.position.x = posX
+        })
     })
 
     return (
         <>
             <CameraController />
-            <UIkit>
-                <UI />
+            <UIkit onWheel={handleWheel}>
+                <UI navFunctions={{ next: next, previous: previous }} />
             </UIkit>
             <group ref={groupRef}>
-                <Text3D
-                    position={[0, 0, 1]}
-                    scale={[1, 1, 0.0001]}
-                    size={1}
-                    curveSegments={24}
-                    lineHeight={0.9}
-                    letterSpacing={0.3}
-                    font={'/fonts/PPTelegraf-Regular-TypeFace.json'}>
-                    {'Song of Saya'}
-                </Text3D>
+                {reviewCategories.map((category, index) => {
+                    return (
+                        <group position={[index * 10, 0, 0]}>
+                            <Category name={category.title} reviews={category.reviews} />
+                        </group>
+                    )
+                })}
             </group>
         </>
-
-        /*                     <Container width="100%" height="100%" flexDirection="column" padding={100} >
-                        <Category name="Visual novels" reviews={visualNovelReviews} />
-                        <Category name="Games" reviews={gameReviews} />
-                        <Category name="Movies" reviews={movieReviews} />
-                    </Container> */
     );
 }
 
-function UI() {
+function UI({ navFunctions }: { navFunctions: { next: () => void, previous: () => void } }) {
     const vw = useThree().size.width;
     const vh = useThree().size.height;
 
     const threeState = useThree()
 
-    var texture = useTexture("/000/banner.jpg")
+    var texture = useTexture("/images/5.png")
     var textureResolution = new THREE.Vector2(texture.source.data.width, texture.source.data.height)
 
     class FancyMaterial extends THREE.ShaderMaterial {
@@ -152,6 +162,19 @@ function UI() {
                         {"<    Return to 000"}
                     </Text>
                 </Container>
+                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="row" alignItems="flex-start" justifyContent="flex-start">
+                    <Text {...common.title}>
+                        Visual Novels
+                    </Text>
+                </Container>
+                <Container width="100%" height="100%" gap={30} positionType="absolute" padding={100} flexDirection="row" alignItems="flex-end" justifyContent="center">
+                    <Text onClick={() => navFunctions.previous()} {...common.subtitle}>
+                        {'< Previous'}
+                    </Text>
+                    <Text onClick={() => navFunctions.next()} {...common.subtitle}>
+                        {'Next >'}
+                    </Text>
+                </Container>
             </Container>
         </Container >
     )
@@ -159,40 +182,62 @@ function UI() {
 
 function Category({ name, reviews }: { name: string, reviews: ReviewType[] }) {
     return (
-        <Container width="100%" flexDirection="column" alignItems="flex-start" justifyContent="flex-start" >
-            <Container width="100%" flexDirection="column" alignItems="flex-start" justifyContent="flex-start">
-                <Text {...common.title}>
-                    {name}
-                </Text>
-            </Container>
-            <Container width="100%" paddingLeft="50%" flexDirection="column" gap={10} justifyContent="flex-start">
-                <Container justifyContent="space-between" alignItems="center" padding={10}>
-                    <Text {...common.p}>
-                        Title
-                    </Text>
-                    <Text {...common.p}>
-                        Rating
-                    </Text>
-                </Container>
-                {reviews.map((review, index) => {
-                    return <Review key={index} review={review} />
-                })}
-            </Container>
-        </Container>
+        <>
+            {reviews.map((review, index) => {
+                return <Review key={index} id={index} review={review} />
+            })}
+        </>
     )
 }
 
-function Review({ review }: { review: ReviewType }) {
+function Review({ review, id }: { review: ReviewType, id: number }) {
+    const groupRef = useRef<THREE.Group>(null)
+
+    useFrame((state, delta) => {
+        const worldPos = new THREE.Vector3()
+        groupRef.current!.getWorldPosition(worldPos)
+        const rotY = lerp(groupRef.current!.rotation.y, worldPos.y / 5, 0.1)
+        groupRef.current!.rotation.y = rotY
+        groupRef.current!.position.y = -id
+
+    })
     return (
-        <Container paddingTop={5} justifyContent="space-between" alignItems="center">
-            <Container backgroundColor={"white"} margin="5%" positionType="absolute" width="90%" height="100%" panelMaterialClass={ReviewBackgroundMaterial} />
-            <Text {...common.subtitle}>
+        <group ref={groupRef}>
+            <ReviewText align="left">
                 {review.title}
-            </Text>
-            <Text {...common.subtitle}>
-                {review.overall} / 10
-            </Text>
-        </Container>
+            </ReviewText>
+            <ReviewText position={1} align="left">
+                {review.overall}
+            </ReviewText>
+        </group>
+    )
+}
+
+interface ReviewTextProps {
+    children: string,
+    align: "left" | "center" | "right",
+    position?: number
+}
+
+function ReviewText({ children, align, position = 0 }: ReviewTextProps) {
+    const textRef = useRef<THREE.Mesh>(null)
+    useFrame((state, delta) => {
+        if (align == "left") {
+            textRef.current!.position.x = - new THREE.Box3().setFromObject(textRef.current!).getSize(new THREE.Vector3()).x + position
+        }
+    })
+    return (
+        <Text3D
+            ref={textRef}
+            position={[0, 0, 1]}
+            scale={[1, 1, 0.0001]}
+            size={0.2}
+            curveSegments={24}
+            lineHeight={0.9}
+            letterSpacing={0}
+            font={'/fonts/PPTelegraf-Regular-TypeFace.json'}>
+            {children}
+        </Text3D>
     )
 }
 

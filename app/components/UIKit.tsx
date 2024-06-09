@@ -1,7 +1,12 @@
 import { useThree } from "@react-three/fiber"
 import { FontFamilyProvider, Fullscreen, Root } from "@react-three/uikit"
 
-export default function UIkit({ children }: { children: React.ReactNode }) {
+interface UIKitProps {
+    children?: React.ReactNode
+    onWheel?: (e: WheelEvent) => void
+}
+
+export default function UIkit({ children, onWheel = () => {} }: UIKitProps ) {
     const vw = useThree().size.width
     const vh = useThree().size.height
     return (
@@ -12,7 +17,7 @@ export default function UIkit({ children }: { children: React.ReactNode }) {
                 bold: "/fonts/PPTelegraf-UltraBold-msdf.json",
             }}
         >
-            <Fullscreen distanceToCamera={100} width={vw} height={vh} flexDirection="column">
+            <Fullscreen onWheel={(e: any) => {onWheel(e)}} distanceToCamera={100} width={vw} height={vh} flexDirection="column">
                 {children}
             </Fullscreen>
         </FontFamilyProvider>
