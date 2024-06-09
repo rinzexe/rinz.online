@@ -86,7 +86,7 @@ export default function Page() {
             <group ref={groupRef}>
                 {reviewCategories.map((category, index) => {
                     return (
-                        <group position={[index * 10, 0, 0]}>
+                        <group key={index} position={[index * 10, 0, 0]}>
                             <Category name={category.title} reviews={category.reviews} />
                         </group>
                     )
