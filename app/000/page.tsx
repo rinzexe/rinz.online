@@ -279,6 +279,10 @@ vec3 adjustContrast(vec3 color, float value) {
   }
   // #endregion
 
+float map(float value, float min1, float max1, float min2, float max2) {
+    return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+}
+
 float minmax(float value)
 {
     return min(max(value, 0.0), 1.0);
@@ -332,7 +336,7 @@ void main () {
     vec3 contrastColor = adjustContrast(color, 1.2);
 
     float mouseDirection = atan(uv.x - (mouse.x / 2.0 + 0.5), uv.y - (mouse.y / 2.0 + 0.5));
-    float mouseArea = (1.0 - minmax(distance(uv, (mouse / 2.0 + 0.5)) * (snoise(vec3(mouseDirection * 2.0, mouse.x, mouse.y + time / 10.0)) * 0.5 + 1.0) * 11.0 )) * 5.0;
+    float mouseArea = (1.0 - minmax(distance(uv, (mouse / 2.0 + 0.5)) * (snoise(vec3(mouseDirection * 2.0, mouse.x, mouse.y + time / 10.0)) * 0.5 + 1.0) * (distance(mouse, vec2(0.0))) * 11.0 )) * 5.0;
     vec3 exposureColor = adjustExposure(contrastColor, -0.8);
     exposureColor = adjustExposure(contrastColor, -mouseArea);
 

@@ -22,7 +22,7 @@ export default function TransitionManager({ children }: Readonly<{ children: Rea
     {
         /* setTransitionStage('fadeOut') */
         setTimeout(() => {
-            router.push(url)
+            router.replace(url)
             /* setTransitionStage('fadeIn') */
         }, 2000)
     }
