@@ -331,7 +331,8 @@ void main () {
 
     vec3 contrastColor = adjustContrast(color, 1.2);
 
-    float mouseArea = (1.0 - minmax(distance(uv * (0.5 + (1.0 / 10.0) + (snoise(vec3(uv * 10.0, 0.0))) / 10.0), (mouse / 2.0 + 0.5)) * 5.0)) * 5.0;
+    float mouseDirection = atan(uv.x - (mouse.x / 2.0 + 0.5), uv.y - (mouse.y / 2.0 + 0.5));
+    float mouseArea = (1.0 - minmax(distance(uv, (mouse / 2.0 + 0.5)) * (snoise(vec3(mouseDirection * 2.0, mouse.x, mouse.y + time / 10.0)) * 0.5 + 1.0) * 11.0 )) * 5.0;
     vec3 exposureColor = adjustExposure(contrastColor, -0.8);
     exposureColor = adjustExposure(contrastColor, -mouseArea);
 
@@ -352,3 +353,5 @@ void main() {
     gl_Position =  projectionMatrix * viewMatrix * modelMatrix * instanceMatrix * vec4( position * 1.2, 1.0 );
 }
 `;
+
+// * (snoise(vec3(uv * 10.0, 0.0)) + 1.0)
