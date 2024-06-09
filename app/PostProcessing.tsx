@@ -110,7 +110,7 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
   useFrame((state, delta) => {
     setMouseDelta({ x: mousePos.x - prevMouse.x, y: mousePos.y - prevMouse.y });
     var mouseMultiplier = 10;
-    var splats = [{ x: mousePos.x, y: mousePos.y, dx: mouseDelta.x / mouseMultiplier, dy: mouseDelta.y / mouseMultiplier, radius: 0.0001 }];
+    var splats = [{ x: mousePos.x, y: mousePos.y, dx: mouseDelta.x / mouseMultiplier, dy: mouseDelta.y / mouseMultiplier, radius: 0.001 }];
 
     state.gl.autoClear = false;
 
@@ -140,7 +140,6 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
       }
       else if (prevTransitionStage == "fadeOut") {
         var value = state.clock.elapsedTime - transitionStart
-        console.log("value" + transitionStart)
         if (value < 1) {
           uTransition.value = value;
         }
@@ -148,8 +147,6 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
           uTransition.value = 1;
         }
       }
-
-      console.log(uTransition.value)
     }
 
     simManager.compute(splats);

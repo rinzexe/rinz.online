@@ -51,4 +51,9 @@ export const movieReviews: ReviewType[] = [
         cover: "z",
         overall: "4"
     },
+    {
+        title: "Shogun",
+        cover: "z",
+        overall: "7"
+    },
 ]

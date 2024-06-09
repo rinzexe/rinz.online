@@ -25,7 +25,7 @@ export default function TransitionManager({ children }: Readonly<{ children: Rea
         setTimeout(() => {
             router.push(url)
             setTransitionStage('fadeIn')
-        }, 1000)
+        }, 2000)
     }
 
     return (
