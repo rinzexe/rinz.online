@@ -68,7 +68,7 @@ export default function Page() {
                     var mouseY = lerp(mouseForShader.y, state.pointer.y, 0.01)
                     mouseForShader = new THREE.Vector2(mouseX, mouseY)
 
-                    enterTextRef.current!.setStyle({ positionRight: -(mouseForShader.x * 0.5 + 0.25) * vw, positionBottom: (mouseForShader.y * 0.5) * vh, fontSize: Math.max(((1 - mouseForShader.distanceTo(new THREE.Vector2(0, 0))) * 400) - 300, 0) })
+                    enterTextRef.current!.setStyle({ positionRight: -(mouseForShader.x * 0.5 + 0.25) * vw, positionBottom: (mouseForShader.y * 0.5) * vh, fontSize: Math.min(Math.max(((1 - mouseForShader.distanceTo(new THREE.Vector2(0, 0))) * 400) - 300, 0), 50) })
                 }
             }
         })
@@ -82,10 +82,10 @@ export default function Page() {
                 <Container flexGrow={1} width={vw} height={vh} backgroundColor="white" flexDirection="column" >
                     <Container backgroundColor="green" panelMaterialClass={FancyMaterial} flexGrow={1}>
                         <Container width="100%" height="100%" positionType="absolute" alignItems="center" justifyContent="center">
-                            <Text ref={enterTextRef} {...common.title}>
+                            <Text onClick={() => context.link("/002")} ref={enterTextRef} {...common.title}>
                                 ENTER
                             </Text>
-                            <Container onClick={() => context.link("/002")} zIndexOffset={1000} width="50%" height="50%"></Container>
+                            <Container zIndexOffset={1000} width="50%" height="50%"></Container>
                         </Container>
                         <Container height="100%" positionType="absolute" padding={100} flexDirection="column" justifyContent="flex-end">
                             <Text {...common.subtitle}>
@@ -356,7 +356,7 @@ void main () {
 
     float mouseDirection = atan(uv.x - (mouse.x / 2.0 + 0.5), (uv.y - (mouse.y / 2.0 + 0.5)));
     float mouseMultiplier = max((1.0 - distance(mouse, vec2(0.0)) * 2.0), 0.0);
-    float mouseArea = (1.0 - minmax(distance(uv, (mouse / 2.0 + 0.5)) * centerNoiseMultiplier(mouseDirection, mouseMultiplier, 4.0) * centerNoiseMultiplier(mouseDirection, mouseMultiplier, 9.0) * centerNoiseMultiplier(mouseDirection, mouseMultiplier, 91.0) * (1.2 + (pow(clamp(distance(vec2(0.0), mouse) * 0.8, 0.05, 1.0) + 1.05, 11.0))))) * 1000.0 * mouseMultiplier;
+    float mouseArea = (1.0 - minmax(distance(uv, (mouse / 2.0 + 0.5)) * centerNoiseMultiplier(mouseDirection, mouseMultiplier, 4.0) * centerNoiseMultiplier(mouseDirection, mouseMultiplier, 9.0) * centerNoiseMultiplier(mouseDirection, mouseMultiplier, 91.0) * (1.2 + (pow(clamp(distance(vec2(0.0), mouse) * 0.8, 0.1, 1.0) + 1.05, 11.0))))) * 1000.0 * mouseMultiplier;
 
     uv = uv + (snoise(vec3(uv * 1110.0, time)) / 1.0) * (snoise(vec3(uv * 80.0, time)) / 1.0) * (mouseArea / 11100.0);
 

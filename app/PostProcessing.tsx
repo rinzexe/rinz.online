@@ -315,7 +315,7 @@ float snoise(vec3 v)
 
         vec4 fluidDistortionColor = fluidDistortion(uv); 
 
-        outputColor = fluidDistortionColor - vec4(transition, transition, transition, 1.0);
+        outputColor = fluidDistortionColor * vec4(1.0 - transition, 1.0 - transition, 1.0 - transition, 1.0);
     }
     `
 }

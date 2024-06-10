@@ -3,7 +3,7 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Container, FontFamilyProvider, Fullscreen, Text } from "@react-three/uikit";
 import { createContext, use, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { OrbitControls, Stats, Text3D, useTexture } from '@react-three/drei'
+import { OrbitControls, RenderTexture, Stats, Text3D, useTexture } from '@react-three/drei'
 import { useRouter } from "next/navigation";
 import { common } from "@/app/styles/styles";
 import * as THREE from 'three'
@@ -11,6 +11,7 @@ import { TransitionContext } from "../TransitionManager";
 import { gameReviews, movieReviews, reviewCategories, ReviewType, visualNovelReviews } from "@/constants/reviews";
 import UIkit from "../components/UIKit";
 import CameraController from "../components/CameraController";
+import MaskPanel from "../components/MaskPanel";
 
 var glsl = require('glslify')
 
@@ -18,31 +19,20 @@ function lerp(a: number, b: number, alpha: number) {
     return a + alpha * (b - a)
 }
 
-class ReviewBackgroundMaterial extends THREE.ShaderMaterial {
-
-    constructor(props: any) {
-        super({
-            uniforms:
-            {
-                canvasRes: { value: new THREE.Vector2(0, 0) },
-                time: { value: 0 },
-                animStartTime: { value: 0 },
-                mouse: { value: new THREE.Vector2(0, 0) },
-            },
-            fragmentShader: reviewFrag,
-            vertexShader: vertexShader
-        })
-    }
-}
-
 export default function Page() {
-    const [targetOffset, setTargetOffset] = useState(0);
+    const vw = useThree().size.width;
+    const vh = useThree().size.height;
+
     const [activeCategory, setActiveCategory] = useState(0);
+    const [targetOffset, setTargetOffset] = useState(0);
+
+    const [currentCategoryTitle, setCurrentCategoryTitle] = useState("Visual Novels");
 
     const groupRef = useRef<THREE.Group>(null)
+    const renderTextureRef = useRef<any>()
 
     function handleWheel(e: WheelEvent) {
-        setTargetOffset(targetOffset + e.deltaY / 100)
+        setTargetOffset(Math.max(Math.min(targetOffset + e.deltaY / 100, reviewCategories[activeCategory].reviews.length / 2.5), 0))
     }
 
     function minMax(input: number) {
@@ -50,17 +40,79 @@ export default function Page() {
     }
 
     function next() {
-
         setActiveCategory(minMax(activeCategory + 1))
         setTargetOffset(0)
+        setCurrentCategoryTitle(reviewCategories[minMax(activeCategory + 1)].title)
     }
 
     function previous() {
         setActiveCategory(minMax(activeCategory - 1))
         setTargetOffset(0)
+        setCurrentCategoryTitle(reviewCategories[minMax(activeCategory - 1)].title)
+    }
+
+    var texture = useTexture("/images/5.png")
+    var textureResolution = new THREE.Vector2(texture.source.data.width, texture.source.data.height)
+
+    class FancyMaterial extends THREE.ShaderMaterial {
+
+        constructor(props: any) {
+            super({
+                uniforms:
+                {
+                    canvasRes: { value: new THREE.Vector2(vw, vh) },
+                    imageRes: { value: new THREE.Vector2(textureResolution.x, textureResolution.y) },
+                    tex: { value: texture },
+                    reviewTex: { value: null },
+                    time: { value: 0 },
+                    mouse: { value: new THREE.Vector2(0, 0) },
+                    transition: { value: 0 }
+                },
+                fragmentShader: fragmentShader,
+                vertexShader: vertexShader
+            })
+        }
     }
 
     useFrame((state, delta) => {
+
+        var canvasRes = new THREE.Vector2(0.0, 0.0);
+        state.gl.getSize(canvasRes)
+        state.scene.traverse((element) => {
+            // this segment is proof that god does not exist
+            if (element['material' as keyof typeof element] != undefined) {
+                if (element['material' as keyof typeof element]!.constructor.name == FancyMaterial.name) {
+                    var fixedElement = element['material' as keyof typeof element] as FancyMaterial
+                    fixedElement.uniforms.canvasRes.value = canvasRes
+                    fixedElement.uniforms.imageRes.value = textureResolution
+                    fixedElement.uniforms.time.value = state.clock.elapsedTime
+                    fixedElement.uniforms.reviewTex.value = renderTextureRef.current
+                }
+            }
+        })
+    })
+
+    return (
+        <>
+            <CameraController />
+            <UIkit onWheel={handleWheel}>
+                <Container flexGrow={1} width={vw} height={vh} backgroundColor="white" flexDirection="column" >
+                    <Container backgroundColor="green" flexDirection="column" gap={100} panelMaterialClass={FancyMaterial} flexGrow={1}>
+                        <UI currentCategoryTitle={currentCategoryTitle} navFunctions={{ next: next, previous: previous }} />
+                        <RenderTexture ref={renderTextureRef}>
+                            <ReviewComponent activeCategory={activeCategory} targetOffset={targetOffset} />
+                        </RenderTexture>
+                    </Container>
+                </Container >
+            </UIkit>
+        </>
+    );
+}
+
+function ReviewComponent({ activeCategory, targetOffset }: { activeCategory: number, targetOffset: number }) {
+    const groupRef = useRef<any>()
+
+    useFrame(() => {
         reviewCategories.forEach((category, index) => {
             if (activeCategory == index) {
                 const posY = lerp(groupRef.current!.children[index].position.y, targetOffset, 0.02)
@@ -75,107 +127,56 @@ export default function Page() {
             groupRef.current!.position.x = posX
         })
     })
-
     return (
-        <>
-            <CameraController />
-            <UIkit onWheel={handleWheel}>
-                <UI navFunctions={{ next: next, previous: previous }} />
-            </UIkit>
-            <group ref={groupRef}>
-                {reviewCategories.map((category, index) => {
-                    return (
-                        <group key={index} position={[index * 10, 0, 0]}>
-                            <Category name={category.title} reviews={category.reviews} />
-                        </group>
-                    )
-                })}
-            </group>
-        </>
-    );
+        <group ref={groupRef}>
+            {reviewCategories.map((category, index) => {
+                return (
+                    <group key={index} position={[index * 10, 0, 0]}>
+                        <Category name={category.title} reviews={category.reviews} />
+                    </group>
+                )
+            })}
+        </group>
+    )
 }
 
-function UI({ navFunctions }: { navFunctions: { next: () => void, previous: () => void } }) {
+function UI({ navFunctions, currentCategoryTitle }: { navFunctions: { next: () => void, previous: () => void }, currentCategoryTitle: string }) {
     const vw = useThree().size.width;
     const vh = useThree().size.height;
 
     const threeState = useThree()
 
-    var texture = useTexture("/images/5.png")
-    var textureResolution = new THREE.Vector2(texture.source.data.width, texture.source.data.height)
-
-    class FancyMaterial extends THREE.ShaderMaterial {
-
-        constructor(props: any) {
-            super({
-                uniforms:
-                {
-                    canvasRes: { value: new THREE.Vector2(vw, vh) },
-                    imageRes: { value: new THREE.Vector2(textureResolution.x, textureResolution.y) },
-                    tex: { value: texture },
-                    time: { value: threeState.clock.elapsedTime },
-                    mouse: { value: new THREE.Vector2(0, 0) },
-                    transition: { value: 0 }
-                },
-                fragmentShader: fragmentShader,
-                vertexShader: vertexShader
-            })
-        }
-    }
-
     const context = useContext(TransitionContext)
 
-    useFrame((state, delta) => {
-        var canvasRes = new THREE.Vector2(0.0, 0.0);
-        state.gl.getSize(canvasRes)
-        state.scene.traverse((element) => {
-            // this segment is proof that god does not exist
-            if (element['material' as keyof typeof element] != undefined) {
-                if (element['material' as keyof typeof element]!.constructor.name == FancyMaterial.name) {
-                    var fixedElement = element['material' as keyof typeof element] as FancyMaterial
-                    fixedElement.uniforms.canvasRes.value = canvasRes
-                    fixedElement.uniforms.imageRes.value = textureResolution
-                    fixedElement.uniforms.time.value = state.clock.elapsedTime
-                }
-            }
-
-            if (element['material' as keyof typeof element] != undefined) {
-                if (element['material' as keyof typeof element]!.constructor.name == ReviewBackgroundMaterial.name) {
-                    var fixedElement = element['material' as keyof typeof element] as ReviewBackgroundMaterial
-                    fixedElement.uniforms.canvasRes.value = canvasRes
-                    fixedElement.uniforms.time.value = state.clock.elapsedTime
-                    fixedElement.uniforms.mouse.value = new THREE.Vector2(state.pointer.x, state.pointer.y)
-                }
-            }
-        })
-
-    })
     return (
-        <Container flexGrow={1} width={vw} height={vh} backgroundColor="white" flexDirection="column" >
-            <Container backgroundColor="green" flexDirection="column" gap={100} panelMaterialClass={FancyMaterial} flexGrow={1}>
-                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="flex-start" justifyContent="flex-end">
-                    <Text {...common.title}>
-                        Reviews
-                    </Text>
-                    <Text onClick={() => context.link("/000")} {...common.subtitle}>
-                        {"<    Return to 000"}
-                    </Text>
-                </Container>
-                <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="row" alignItems="flex-start" justifyContent="flex-start">
-                    <Text {...common.title}>
-                        Visual Novels
-                    </Text>
-                </Container>
-                <Container width="100%" height="100%" gap={30} positionType="absolute" padding={100} flexDirection="row" alignItems="flex-end" justifyContent="center">
-                    <Text onClick={() => navFunctions.previous()} {...common.subtitle}>
-                        {'< Previous'}
-                    </Text>
-                    <Text onClick={() => navFunctions.next()} {...common.subtitle}>
-                        {'Next >'}
-                    </Text>
-                </Container>
+        <>
+            <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="flex-start" justifyContent="flex-end">
+                <Text {...common.title}>
+                    Reviews
+                </Text>
+                <Text onClick={() => context.link("/000")} {...common.subtitle}>
+                    {"<    Return to 000"}
+                </Text>
             </Container>
-        </Container >
+            <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="flex-end" justifyContent="center">
+                <Text width="15%" textAlign={"right"} {...common.p}>
+                    {'Reviews are based on my enjoyment consuming the media, not on what I think is objectively good or bad.'}
+                </Text>
+            </Container>
+            <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="row" alignItems="flex-start" justifyContent="flex-start">
+                <Text {...common.title}>
+                    {currentCategoryTitle}
+                </Text>
+            </Container>
+            <Container width="100%" height="100%" gap={30} positionType="absolute" padding={100} flexDirection="row" alignItems="flex-end" justifyContent="center">
+                <Text onClick={() => navFunctions.previous()} {...common.subtitle}>
+                    {'< Previous'}
+                </Text>
+                <Text onClick={() => navFunctions.next()} {...common.subtitle}>
+                    {'Next >'}
+                </Text>
+            </Container>
+        </>
     )
 }
 
@@ -197,7 +198,7 @@ function Review({ review, id }: { review: ReviewType, id: number }) {
         groupRef.current!.getWorldPosition(worldPos)
         const rotY = lerp(groupRef.current!.rotation.y, worldPos.y / 5, 0.03)
         groupRef.current!.rotation.y = rotY
-        groupRef.current!.position.y = -id
+        groupRef.current!.position.y = -id / 2
 
     })
     return (
@@ -222,7 +223,7 @@ function ReviewText({ children, align, position = 0 }: ReviewTextProps) {
     const textRef = useRef<THREE.Mesh>(null)
     useFrame((state, delta) => {
         if (align == "left") {
-            textRef.current!.position.x = - new THREE.Box3().setFromObject(textRef.current!).getSize(new THREE.Vector3()).x + position
+            textRef.current!.position.x = - new THREE.Box3().setFromObject(textRef.current!).getSize(new THREE.Vector3()).x + position + 0.1
         }
     })
     return (
@@ -390,16 +391,19 @@ precision highp float;
 precision highp sampler2D;
 
 uniform sampler2D tex;
+uniform sampler2D reviewTex;
 
 uniform vec2 imageRes;
 uniform vec2 canvasRes;
+
+uniform vec2 mouse;
 
 uniform float time;
 uniform float transition;
 
 varying vec2 vUv;
 
-//#region noise
+//#region noise shit
 vec3 mod289(vec3 x) {
     return x - floor(x * (1.0 / 289.0)) * 289.0;
   }
@@ -534,9 +538,13 @@ vec3 adjustContrast(vec3 color, float value) {
   }
   // #endregion
 
+float map(float value, float min1, float max1, float min2, float max2) {
+    return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+}
+
 float minmax(float value)
 {
-    return min(max(value * 1.5, 0.0), 1.0);
+    return min(max(value, 0.0), 1.0);
 }
 
 float FREQ1 = 2.0;
@@ -559,7 +567,14 @@ float EVOLUTIONSPEEDG = 0.005;
 
 float GLOBALDEPTH = 55.0;
 
+float centerNoiseMultiplier (float mouseDirection, float mouseMultiplier, float freq)
+{
+    return (snoise(vec3(mouseDirection * freq, mouse.x * 5.0, mouse.y * 5.0 + time / 5.0)) * (0.1 - freq / 1000.0)  * mouseMultiplier + 1.0);
+}
+
 void main () {
+
+    float aspect = canvasRes.x / canvasRes.y;
 
     vec2 offsetUv = (calcUv() - 0.5) * 2.0;
 
@@ -579,18 +594,29 @@ void main () {
 
 // #endregion
 
-// #region transition
-    uv = uv * (transition + 1.0);
-// #endregion
+    float mouseDirection = atan(uv.x - (mouse.x / 2.0 + 0.5), (uv.y - (mouse.y / 2.0 + 0.5)));
+    float mouseMultiplier = max((1.0 - distance(mouse, vec2(0.0)) * 2.0), 0.0);
+    float mouseArea = (1.0 - minmax(distance(uv, (mouse / 2.0 + 0.5)) * centerNoiseMultiplier(mouseDirection, mouseMultiplier, 4.0) * centerNoiseMultiplier(mouseDirection, mouseMultiplier, 9.0) * centerNoiseMultiplier(mouseDirection, mouseMultiplier, 91.0) * (1.2 + (pow(clamp(distance(vec2(0.0), mouse) * 0.8, 0.1, 1.0) + 1.0, 8.0))))) * 1000.0 * mouseMultiplier;
+
+    uv = uv + (snoise(vec3(uv * 1110.0, time)) / 1.0) * (snoise(vec3(uv * 80.0, time)) / 1.0) * (mouseArea / 11100.0);
 
     vec3 vignette = 1.0 - vec3(pow(distance(vec2(0.0), offsetUv), 0.5));
 
     vec3 color = texture2D(tex, uv).xyz * vec3(vignette.x * 1.0, vignette.yz);
 
-    vec3 contrastColor = adjustContrast(color, 1.2);
-    vec3 exposureColor = adjustExposure(contrastColor, -0.1);
+    vec2 reviewUv = vUv + (0.0 - (snoise(vec3(vUv * 8810.0, time / 1.0)) * snoise(vec3(vUv * 10.0, time / 10.0)) * pow(distance(vec2(0.5), vUv), 2.0)) / 5.0);
 
-    gl_FragColor = vec4(exposureColor * 0.1, 1.0);
+    vec3 reviewColor = texture2D(reviewTex, reviewUv).xyz * (mouseArea);
+
+    color += reviewColor;
+
+    vec3 contrastColor = adjustContrast(color, 1.2);
+
+    vec3 exposureColor = adjustExposure(contrastColor, -0.8);
+    exposureColor = adjustExposure(exposureColor, -0.8 * clamp(mouseArea * 100.0, -1.0, 1.0) * (distance((mouse / 2.0 + 0.5), uv) + 0.95)) * ((distance((mouse), vec2(0.0)) + 1.0) / 2.0);
+
+
+    gl_FragColor = vec4(exposureColor, 1.0);
 }
 `);
 
