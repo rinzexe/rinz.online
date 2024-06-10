@@ -27,7 +27,7 @@ export default function Page() {
 
     var mouseForShader = useMemo(() => new THREE.Vector2(0, 0), [])
 
-    var texture = useTexture("/images/4.png")
+    var texture = useTexture("/images/20.png")
     var textureResolution = new THREE.Vector2(texture.source.data.width, texture.source.data.height)
 
     class FancyMaterial extends THREE.ShaderMaterial {
@@ -89,14 +89,14 @@ export default function Page() {
                         </Container>
                         <Container height="100%" positionType="absolute" padding={100} flexDirection="column" justifyContent="flex-end">
                             <Text {...common.subtitle}>
-                                #001
+                                #002
                             </Text>
 
                             <Text {...common.title}>
-                                Portfolio
+                                Reviews
                             </Text>
                             <Text  {...common.p}>
-                                For employers
+                                Media I like, ranked
                             </Text>
                         </Container>
                         <Container height="100%" positionType="absolute" padding={100} flexDirection="column" justifyContent="center">

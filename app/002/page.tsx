@@ -51,7 +51,7 @@ export default function Page() {
         setCurrentCategoryTitle(reviewCategories[minMax(activeCategory - 1)].title)
     }
 
-    var texture = useTexture("/images/5.png")
+    var texture = useTexture("/images/19.png")
     var textureResolution = new THREE.Vector2(texture.source.data.width, texture.source.data.height)
 
     class FancyMaterial extends THREE.ShaderMaterial {
