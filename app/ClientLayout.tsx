@@ -7,6 +7,7 @@ import AnimatedCursor from "react-animated-cursor";
 import TransitionManager from "./TransitionManager";
 import { PostProcessing } from "./PostProcessing";
 import { OrbitControls, Stats, Text3D } from "@react-three/drei";
+import CameraController from "./components/CameraController";
 
 export default function ClientLayout({ children }: { children: ReactNode }) {
     return (
@@ -28,6 +29,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
             />
             <Canvas style={{ position: "fixed", height: "100vh" }} >
                 {/* <OrbitControls /> */}
+                <CameraController />
                 <TransitionManager>
                     {children}
                 </TransitionManager>

@@ -10,7 +10,6 @@ import * as THREE from 'three'
 import { TransitionContext } from "../TransitionManager";
 import { gameReviews, movieReviews, reviewCategories, ReviewType, visualNovelReviews } from "@/constants/reviews";
 import UIkit from "../components/UIKit";
-import CameraController from "../components/CameraController";
 
 var glsl = require('glslify')
 
@@ -79,7 +78,6 @@ export default function Page() {
 
     return (
         <>
-            <CameraController />
             <UIkit onWheel={handleWheel}>
                 <UI navFunctions={{ next: next, previous: previous }} />
             </UIkit>
