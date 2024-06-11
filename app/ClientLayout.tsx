@@ -27,7 +27,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
                     border: '1px solid rgb(255, 255, 255)'
                 }}
             />
-            <Canvas style={{ position: "fixed", height: "100vh" }} >
+            <Canvas camera={{ far: 1111111 }} style={{ position: "fixed", height: "100vh" }} >
                 {/* <OrbitControls /> */}
                 <TransitionManager>
                     {children}

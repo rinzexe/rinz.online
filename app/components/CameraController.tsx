@@ -5,7 +5,7 @@ function lerp(a: number, b: number, alpha: number) {
     return a + alpha * (b - a)
 }
 
-export default function CameraController() {
+export default function CameraController({targetY = 0}: {targetY: number}) {
     const vw = useThree().size.width;
     const vh = useThree().size.height;
     const aspect = vw / vh;
@@ -15,7 +15,7 @@ export default function CameraController() {
         var rotSens = 0.05
 
         var posTargetX = lerp(state.camera.position.x, 0, 0.02);
-        var posTargetY = lerp(state.camera.position.y, 0, 0.02);
+        var posTargetY = lerp(state.camera.position.y, targetY, 0.02);
 
         var rotTargetX = lerp(state.camera.rotation.y, -state.pointer.x * aspect * rotSens, 0.02)
         var rotTargetY = lerp(state.camera.rotation.x, state.pointer.y * aspect * rotSens, 0.02)

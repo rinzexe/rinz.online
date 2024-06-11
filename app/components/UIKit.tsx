@@ -17,9 +17,9 @@ export default function UIkit({ children, onWheel = () => {} }: UIKitProps ) {
                 bold: "/fonts/PPTelegraf-UltraBold-msdf.json",
             }}
         >
-            <Fullscreen onWheel={(e: any) => {onWheel(e)}} distanceToCamera={100} width={vw} height={vh} flexDirection="column">
+            <Root onWheel={(e: any) => {onWheel(e)}} width={vw} height={vh} flexDirection="column">
                 {children}
-            </Fullscreen>
+            </Root>
         </FontFamilyProvider>
     )
 }
