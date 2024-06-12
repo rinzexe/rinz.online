@@ -1,9 +1,12 @@
 precision highp float;
 precision highp sampler2D;
 
-uniform sampler2D tex;
+uniform sampler2D currentPage;
+uniform sampler2D loadedPage;
 
-uniform vec2 imageRes;
+uniform vec2 currentRes;
+uniform vec2 loadedRes;
+
 uniform vec2 canvasRes;
 
 uniform vec2 mouse;
@@ -27,15 +30,10 @@ varying vec2 vUv;
 #pragma glslify: adjustExposure = require(../shaderlib/post-processing/adjustExposure.glsl)
 
 float portalSize() {
-   return pow(clamp(distance(vec2(0.0), mouse) * 0.8, 0.1, 1.0) + 1.05, 11.0);
-} 
+    return pow(clamp(distance(vec2(0.0), mouse) * 0.8, 0.1, 1.0) + 1.05, 11.0);
+}
 
-void main() {
-
-    float aspect = canvasRes.x / canvasRes.y;
-
-    vec2 offsetUv = (calcUv(canvasRes, imageRes, vUv) - 0.5) * 2.0;
-
+vec3 calcColor(sampler2D tex, vec2 offsetUv) {
     vec2 uv = distortion(offsetUv, time);
 
     float area = portalArea(uv, mouse, time, portalSize(), 0.1);
@@ -50,7 +48,20 @@ void main() {
 
     color = adjustExposure(color, -0.8);
 
-    color = adjustExposure(color, (- distance(offsetUv, mouse) * 2.0 - 0.5) * clamp(area, -1.0, 1.0));
+    color = adjustExposure(color, (-distance(offsetUv, mouse) * 2.0 - 0.5) * clamp(area, -1.0, 1.0));
+
+    return color;
+}
+
+void main() {
+
+    vec2 currentUv = (calcUv(canvasRes, currentRes, vUv) - 0.5) * 2.0;
+    vec2 loadedUv = (calcUv(canvasRes, loadedRes, vUv) - 0.5) * 2.0;
+
+    vec3 currentColor = calcColor(currentPage, currentUv);
+    vec3 loadedColor = calcColor(loadedPage, loadedUv);
+
+    vec3 color = mix(currentColor, loadedColor, sin(transition - floor(transition)) / 0.841470984268);
 
     gl_FragColor = vec4(color, 1.0);
 }

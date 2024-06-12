@@ -57,7 +57,7 @@ export default function Page() {
               <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="flex-start" justifyContent="center">
                 <Container width={10}  backgroundColor="white" height="20%" >
                   <Container width="100%" height="100%" padding={3} backgroundColor="black">
-                    <Container width="100%" height={Math.abs(targetY * 4.16).toString() + "%"} padding={1} backgroundColor="white">
+                    <Container width="100%" height={`${Math.abs(targetY * 4.16)}%`} padding={1} backgroundColor="white">
                     </Container>
                   </Container>
                 </Container>

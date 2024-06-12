@@ -13,25 +13,7 @@ export default function Background({ source, fragment, uniforms, compute, childr
     var texture = useTexture(source)
     var textureResolution = new THREE.Vector2(texture.source.data.width, texture.source.data.height)
 
-        const BackgroundMaterial = useMemo(() => class BackgroundMaterial extends THREE.ShaderMaterial {
-    
-            constructor(props: any) {
-                super({
-                    uniforms:
-                    {
-                        canvasRes: { value: new THREE.Vector2(vw, vh) },
-                        imageRes: { value: new THREE.Vector2(textureResolution.x, textureResolution.y) },
-                        tex: { value: texture },
-                        time: { value: 0 },
-                        ...uniforms
-                    },
-                    fragmentShader: fragment,
-                    vertexShader: vertex
-                })
-            }
-        },[])
-
-/*     class BackgroundMaterial extends THREE.ShaderMaterial {
+    const BackgroundMaterial = useMemo(() => class BackgroundMaterial extends THREE.ShaderMaterial {
 
         constructor(props: any) {
             super({
@@ -47,7 +29,25 @@ export default function Background({ source, fragment, uniforms, compute, childr
                 vertexShader: vertex
             })
         }
-    } */
+    }, [])
+
+    /*     class BackgroundMaterial extends THREE.ShaderMaterial {
+    
+            constructor(props: any) {
+                super({
+                    uniforms:
+                    {
+                        canvasRes: { value: new THREE.Vector2(vw, vh) },
+                        imageRes: { value: new THREE.Vector2(textureResolution.x, textureResolution.y) },
+                        tex: { value: texture },
+                        time: { value: 0 },
+                        ...uniforms
+                    },
+                    fragmentShader: fragment,
+                    vertexShader: vertex
+                })
+            }
+        } */
 
     useFrame((state, delta) => {
 

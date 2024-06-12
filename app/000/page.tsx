@@ -14,6 +14,8 @@ import CameraController from "../components/CameraController";
 import backgroundFragment from './background.glsl'
 import Background from "../components/Background";
 
+import { pages } from "@/constants/pages";
+
 function lerp(a: number, b: number, alpha: number) {
     return a + alpha * (b - a)
 }
@@ -24,11 +26,22 @@ export default function Page() {
 
     const enterTextRef = useRef<any>(null)
 
-    const threeState = useThree()
+    var currentPage = useMemo(() => 0, [])
 
     var mouseForShader = useMemo(() => new THREE.Vector2(0, 0), [])
 
     const context = useContext(TransitionContext)
+
+
+    var textures: any = [];
+    var resolutions: any= [];
+  
+    for (let i = 0; i < pages.length; i++) {
+      textures.push(useTexture(pages[i].image))
+      textures[i].wrapS = THREE.ClampToEdgeWrapping
+      textures[i].wrapT = THREE.ClampToEdgeWrapping
+      resolutions.push(new THREE.Vector2(textures[i].source.data.width, textures[i].source.data.height))
+    }
 
     useFrame((state, delta) => {
 
@@ -41,14 +54,25 @@ export default function Page() {
 
     const compute = useCallback((element: any, state: any) => {
         element.uniforms.mouse.value = mouseForShader
-    }, [mouseForShader])
+    
+        console.log(currentPage)
+        element.uniforms.currentPage.value = textures[0]
+        element.uniforms.loadedPage.value = textures[1]
+        element.uniforms.currentRes.value = resolutions[0]
+        element.uniforms.loadedRes.value = resolutions[1]
+        element.uniforms.transition.value = lerp(element.uniforms.transition.value, currentPage, 0.01)
+    }, [mouseForShader, currentPage, textures, resolutions])
+
+    const handleWheel = useCallback((e: any) => {
+        console.log(e)
+    }, [])
 
     return (
         <>
             <CameraController targetY={0} />
-            <UIkit>
+            <UIkit onWheel={handleWheel}>
                 <Container flexGrow={1} width={vw} height={vh} backgroundColor="white" flexDirection="column" >
-                    <Background compute={compute} source="/images/20.png" fragment={backgroundFragment} uniforms={{ mouse: { value: new THREE.Vector2(0, 0) } }} props={{ flexGrow: 1 }}>
+                    <Background compute={compute} source="/images/20.png" fragment={backgroundFragment} uniforms={{ transition: { value: 0 }, mouse: { value: new THREE.Vector2(0, 0) }, loadedPage: { value: null }, currentPage: { value: null }, loadedRes: { value: new THREE.Vector2(0, 0) }, currentRes: { value: new THREE.Vector2(0, 0) } }} props={{ flexGrow: 1 }}>
                         <Container width="100%" height="100%" positionType="absolute" alignItems="center" justifyContent="center">
                             <Text onClick={() => context.link("/002")} ref={enterTextRef} {...common.title}>
                                 ENTER
