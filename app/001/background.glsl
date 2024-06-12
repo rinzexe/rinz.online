@@ -27,7 +27,7 @@ varying vec2 vUv;
 #pragma glslify: adjustExposure = require(../shaderlib/post-processing/adjustExposure.glsl)
 
 void main() {
-    vec2 position = vec2(0.3, 0.3);
+    vec2 position = vec2(0.4, 0.0);
 
     float aspect = canvasRes.x / canvasRes.y;
 
@@ -35,15 +35,17 @@ void main() {
 
     vec2 uv = distortion(offsetUv, time);
 
-    float area = portalArea(uv, position, time, 2.5, 0.3);
+    float area = portalArea(uv, position, time, 2.0, 0.1);
 
     uv = portalDistortion(uv, offsetUv, position, area, time, 0.1);
 
     vec3 color = texture2D(tex, uv).xyz;
 
-    vec2 reviewUv = vUv + (0.0 - (snoise(vec3(vUv * 8810.0, time / 1.0)) * snoise(vec3(vUv * 10.0, time / 10.0)) * pow(distance(position, (vUv - 0.5) * 2.0), 2.0)) / 55.0);
+    vec2 reviewInputUv = (vUv  * (1.0 * mix(1.0, 1.0 - distance(position.y, pow(offsetUv.y, 2.0)) * 0.1, clamp(area, 0.0, 1.0))));
 
-    vec3 reviewColor = texture2D(reviewTex, reviewUv).xyz * (area);
+    vec2 reviewUv = reviewInputUv + (0.0 - (snoise(vec3(reviewInputUv * 8810.0, time / 1.0)) * snoise(vec3(reviewInputUv * 10.0, time / 10.0)) * pow(distance(position, (reviewInputUv - 0.5) * 2.0), 2.0)) / 95.0);
+
+    vec3 reviewColor = texture2D(reviewTex, reviewUv).xyz * clamp(area, 0.0, 25.0);
 
     color += reviewColor;
 
@@ -53,7 +55,7 @@ void main() {
 
     color = adjustExposure(color, -0.8);
 
-    color = adjustExposure(color, (-distance(offsetUv, position) * 0.2 - 0.9) * clamp(area, -1.0, 1.0));
+    color = adjustExposure(color, (-distance(offsetUv, position) * 0.3 - 0.7) * clamp(area, -1.0, 1.0));
 
     gl_FragColor = vec4(color, 1.0);
 }

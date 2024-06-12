@@ -63,7 +63,7 @@ export default function Page() {
     return (
         <>
             <CameraController targetY={0} />
-            <UIkit onWheel={handleWheel}>
+            <UIkit isfullscreen={false} onWheel={handleWheel}>
                 <Container flexGrow={1} width={vw} height={vh} backgroundColor="white" flexDirection="column" >
                     <Background props={{ flexDirection: "column", gap: 100, flexGrow: 1 }} uniforms={uniforms} source="/images/19.png" fragment={backgroundFragment} compute={compute}>
                         <UI currentCategoryTitle={currentCategoryTitle} navFunctions={{ next: next, previous: previous }} />

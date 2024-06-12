@@ -11,7 +11,8 @@ export var common = {
         color: "white",
     },
     p:{
-        fontSize: 20,
-        color: "white"
+        fontSize: 18,
+        color: "white",
+        letterSpacing: 1
     }
 }
