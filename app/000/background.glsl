@@ -61,7 +61,12 @@ void main() {
     vec3 currentColor = calcColor(currentPage, currentUv);
     vec3 loadedColor = calcColor(loadedPage, loadedUv);
 
-    vec3 color = mix(currentColor, loadedColor, sin(transition - floor(transition)) / 0.841470984268);
+    float sinTransition = abs(sin(transition - floor(transition)) / 0.841470984268);
+
+    float finalTransition = sinTransition;
+
+    vec3 color = mix(currentColor, loadedColor, finalTransition);
+
 
     gl_FragColor = vec4(color, 1.0);
 }

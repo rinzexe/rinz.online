@@ -20,16 +20,8 @@ export const pages: Page[] = [
         id: 2,
         title: "Reviews",
         subtitle: "Media I like, ranked",
-        description: "A quick look into my skillset, experience and projects.",
+        description: "Reviews of the media I consume, ranked from best to worst.",
         image: "/images/10.png",
-        date: "10/06/2024"
-    },
-    {
-        id: 2,
-        title: "Reviews",
-        subtitle: "Media I like, ranked",
-        description: "A quick look into my skillset, experience and projects.",
-        image: "/images/13.png",
         date: "10/06/2024"
     },
 ]

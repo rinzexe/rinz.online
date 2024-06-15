@@ -61,7 +61,7 @@ export const gameReviews: ReviewType[] = [
     {
         title: "ICO",
         cover: "z",
-        overall: "7"
+        overall: "6"
     },
     {
         title: "Yakuza 0",
@@ -100,6 +100,11 @@ export const gameReviews: ReviewType[] = [
     },
     {
         title: "The Long Dark",
+        cover: "z",
+        overall: "1"
+    },
+    {
+        title: "Final Fantasy 7",
         cover: "z",
         overall: "1"
     },
