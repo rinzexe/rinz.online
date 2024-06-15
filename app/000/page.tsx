@@ -31,8 +31,6 @@ export default function Page() {
 
     var mouseForShader = useRef(new THREE.Vector2(0, 0))
 
-    const context = useContext(TransitionContext)
-
     var textureData: any = {}
 
     var tempTextures = []
@@ -100,13 +98,7 @@ export default function Page() {
                         <Container />
                     </Background>
                     <Container zIndexOffset={10} width="100%" height="100%" positionType="absolute" >
-                        <Container width="100%" height="100%" positionType="absolute" alignItems="center" justifyContent="center">
-                            <Text onClick={() => context.link("/002")} ref={enterTextRef} {...common.title}>
-                                ENTER
-                            </Text>
-                            <Container zIndexOffset={1000} width="50%" height="50%"></Container>
-                        </Container>
-                        <UI currentWheel={currentWheel} />
+                        <UI currentWheel={currentWheel} enterTextRef={enterTextRef} />
                     </Container>
                 </Container >
             </UIkit>
@@ -114,9 +106,11 @@ export default function Page() {
     );
 }
 
-function UI({ currentWheel }: { currentWheel: React.MutableRefObject<number> }) {
+function UI({ currentWheel, enterTextRef }: { currentWheel: React.MutableRefObject<number>, enterTextRef: React.MutableRefObject<any>}) {
     const [forceRender, setForceRender] = useState(0);
     var previousWheel = useRef(0)
+
+    const context = useContext(TransitionContext)
 
     useFrame(() => {
         // i have no idea what the fuck this is. but it works. god forgive me
@@ -128,6 +122,12 @@ function UI({ currentWheel }: { currentWheel: React.MutableRefObject<number> }) 
 
     return (
         <>
+            <Container width="100%" height="100%" positionType="absolute" alignItems="center" justifyContent="center">
+                <Text onClick={() => context.link("/" + pages[currentWheel.current].id.toString().padStart(3, "0"))} ref={enterTextRef} {...common.title}>
+                    ENTER
+                </Text>
+                <Container zIndexOffset={1000} width="50%" height="50%"></Container>
+            </Container>
             <Container height="100%" positionType="absolute" padding={100} flexDirection="column" justifyContent="flex-end">
                 <Text {...common.subtitle}>
                     {"#" + pages[currentWheel.current].id.toString().padStart(3, "0")}
@@ -162,7 +162,7 @@ function UI({ currentWheel }: { currentWheel: React.MutableRefObject<number> }) 
             </Container>
             <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="flex-start" justifyContent="flex-start">
                 <Text {...common.subtitle}>
-                {pages[currentWheel.current].date}
+                    {pages[currentWheel.current].date}
                 </Text>
             </Container>
             <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="row" alignItems="center" justifyContent="flex-end">
