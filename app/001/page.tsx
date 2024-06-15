@@ -33,7 +33,7 @@ export default function Page() {
     element.uniforms.reviewTex.value = renderTextureRef.current
     state.camera.position.z = vh / 154
     state.camera.position.y = lerp(state.camera.position.y, targetY, 0.02);
-  }, [targetY])
+  }, [targetY, renderTextureRef])
 
 
   function handleWheel(e: any) {
