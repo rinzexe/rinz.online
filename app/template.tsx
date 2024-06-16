@@ -9,7 +9,6 @@ export default function Template({ children }: { children: React.ReactNode }) {
     return (
         <Suspense fallback={<LoadingScreen />}>
             <Canvas camera={{ far: 1111111 }} style={{ position: "fixed", height: "100vh" }} >
-                {/* <OrbitControls /> */}
                 <TransitionManager>
                     {children}
                 </TransitionManager>
@@ -19,11 +18,12 @@ export default function Template({ children }: { children: React.ReactNode }) {
     )
 }
 
-function LoadingScreen()
-{
-    return(
-        <div>
-            loading
+function LoadingScreen() {
+    return (
+        <div className="w-screen h-screen flex justify-center items-center">
+            <h1>
+                Loading...
+            </h1>
         </div>
     )
 }
