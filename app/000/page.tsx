@@ -106,9 +106,11 @@ export default function Page() {
     );
 }
 
-function UI({ currentWheel, enterTextRef }: { currentWheel: React.MutableRefObject<number>, enterTextRef: React.MutableRefObject<any>}) {
+function UI({ currentWheel, enterTextRef }: { currentWheel: React.MutableRefObject<number>, enterTextRef: React.MutableRefObject<any> }) {
     const [forceRender, setForceRender] = useState(0);
     var previousWheel = useRef(0)
+
+    const scrollRef = useRef<any>(null)
 
     const context = useContext(TransitionContext)
 
@@ -118,6 +120,8 @@ function UI({ currentWheel, enterTextRef }: { currentWheel: React.MutableRefObje
             setForceRender(forceRender + 1)
         }
         previousWheel.current = currentWheel.current
+
+        scrollRef.current.setStyle({ marginTop: currentWheel.current * 42 - 6 })
     })
 
     return (
@@ -166,16 +170,15 @@ function UI({ currentWheel, enterTextRef }: { currentWheel: React.MutableRefObje
                 </Text>
             </Container>
             <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="row" alignItems="center" justifyContent="flex-end">
-                <Container flexDirection="column">
-                    <Text {...common.title}>
-                        -
-                    </Text>
-                    <Text {...common.title}>
-                        -
-                    </Text>
-                    <Text  {...common.title}>
-                        -
-                    </Text>
+                <Container width="5%" alignItems="center" flexDirection="column">
+                    <Container ref={scrollRef} positionType="absolute" width={35} height={15} borderColor="white" borderWidth={2} flexDirection="row" alignItems="center" justifyContent="flex-end" />
+                    <Container flexDirection="column" gap={40}>
+                        {pages.map((page, index) => {
+                            return (
+                                <Container key={index} width={20} height={2} borderColor="white" borderBottomWidth={2} flexDirection="row" alignItems="center" justifyContent="flex-end" />
+                            )
+                        })}
+                    </Container>
                 </Container>
             </Container>
         </>
