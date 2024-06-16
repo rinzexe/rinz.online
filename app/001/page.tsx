@@ -45,7 +45,7 @@ export default function Page() {
       <UIkit>
         <Container flexDirection={"column"} onWheel={handleWheel} >
           <Container flexGrow={1} width={vw} height={vh} backgroundColor="black" flexDirection="column">
-            <Background props={{ flexDirection: "column", gap: 100, flexGrow: 1 }} uniforms={{ reviewTex: { value: null } }} source="/images/22.png" fragment={backgroundFragment} compute={compute}>
+            <Background props={{ flexDirection: "column", gap: 100, flexGrow: 1 }} uniforms={{ reviewTex: { value: null } }} source="/images/20.png" fragment={backgroundFragment} compute={compute}>
               <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="flex-start" justifyContent="flex-end">
                 <Text {...common.title}>
                   Portfolio

@@ -86,7 +86,7 @@ export default function Page() {
     }, [mouseForShader, textureData])
 
     const handleWheel = useCallback((e: any) => {
-        currentWheel.current = Math.min(Math.max(currentWheel.current + e.deltaY / 10000, 0), pages.length - 1)
+        currentWheel.current = Math.min(Math.max(currentWheel.current + e.deltaY / 8000, 0), pages.length - 1)
     }, [currentWheel])
 
     return (
@@ -151,7 +151,7 @@ function UI({ currentWheel, enterTextRef }: { currentWheel: React.MutableRefObje
             </Container>
             <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="center" justifyContent="flex-end">
                 <Text {...common.subtitle}>
-                    Scroll down
+                    Scroll to navigate
                 </Text>
             </Container>
             <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="center" justifyContent="flex-start">

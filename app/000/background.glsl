@@ -17,6 +17,7 @@ uniform float transition;
 varying vec2 vUv;
 
 #pragma glslify: snoise = require(glsl-noise/simplex/3d) 
+#pragma glslify: cnoise2 = require(glsl-noise/classic/2d) 
 
 #pragma glslify: calcUv = require(../shaderlib/containImageUv.glsl) 
 
@@ -61,9 +62,9 @@ void main() {
     vec3 currentColor = calcColor(currentPage, currentUv);
     vec3 loadedColor = calcColor(loadedPage, loadedUv);
 
-    float sinTransition = abs(sin(transition - floor(transition)) / 0.841470984268);
+    float sinTransition = abs(sin(transition - floor(transition)));
 
-    float finalTransition = sinTransition;
+    float finalTransition = floor(vUv.y + sinTransition + (cnoise2(vec2(round(vUv.x * 120.0) * sin(vUv.x * 10.0), vUv.y)) * (0.5 - abs(sinTransition - 0.5))));
 
     vec3 color = mix(currentColor, loadedColor, finalTransition);
 
