@@ -188,6 +188,7 @@ interface ReviewTextProps {
 }
 
 function ReviewText({ children, align, position = 0 }: ReviewTextProps) {
+    const vh = useThree().size.height
     const textRef = useRef<THREE.Mesh>(null)
     useFrame((state, delta) => {
         if (align == "left") {
@@ -199,7 +200,7 @@ function ReviewText({ children, align, position = 0 }: ReviewTextProps) {
             ref={textRef}
             position={[0, 0, 1]}
             scale={[1, 1, 0.0001]}
-            size={0.2}
+            size={0.2 * (vh / 1600)}
             curveSegments={24}
             lineHeight={0.9}
             letterSpacing={0}

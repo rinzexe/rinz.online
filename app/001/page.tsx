@@ -54,8 +54,11 @@ export default function Page() {
                   {"<    Return to 000"}
                 </Text>
               </Container>
+              <Text margin={40} onClick={() => location.href = "https://spireui.com"} {...common.subtitle}>
+                Visit SpireUI
+              </Text>
               <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="flex-start" justifyContent="center">
-                <Container width={10}  backgroundColor="white" height="20%" >
+                <Container width={10} backgroundColor="white" height="20%" >
                   <Container width="100%" height="100%" padding={3} backgroundColor="black">
                     <Container width="100%" height={`${Math.abs(targetY * 4.16)}%`} padding={1} backgroundColor="white">
                     </Container>

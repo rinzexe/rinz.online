@@ -47,9 +47,7 @@ vec3 calcColor(sampler2D tex, vec2 offsetUv) {
 
     color = adjustContrast(color, 1.2);
 
-    color = adjustExposure(color, -0.8);
-
-    color = adjustExposure(color, (-distance(offsetUv, mouse) * 2.0 - 0.5) * clamp(area, -1.0, 1.0));
+    color = adjustExposure(color, -0.8 + (-distance(offsetUv, mouse) * 2.0 - 0.5) * clamp(area, -1.0, 1.0));
 
     return color;
 }

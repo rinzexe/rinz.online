@@ -1,7 +1,7 @@
 import { useTexture } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Container } from '@react-three/uikit';
-import { ReactNode, useMemo } from 'react';
+import { ReactNode, useMemo, useRef } from 'react';
 import * as THREE from 'three'
 
 
@@ -31,24 +31,32 @@ export default function Background({ source, fragment, uniforms, compute, childr
         }
     }, [])
 
+    const backgroundElement = useRef<any>(0)
+
     useFrame((state, delta) => {
 
-        var canvasRes = new THREE.Vector2(0.0, 0.0);
-        state.gl.getSize(canvasRes)
-        state.scene.traverse((element) => {
-            // this segment is proof that god does not exist
-            if (element['material' as keyof typeof element] != undefined) {
-                if (element['material' as keyof typeof element]!.constructor.name == BackgroundMaterial.name) {
-                    // can't be fixed apparently, have to use ts ignore in prod
-                    var fixedElement = element['material' as keyof typeof element] as BackgroundMaterial
+        if (backgroundElement.current == 0) {
+            state.scene.traverse((element) => {
+                // this segment is proof that god does not exist
+                if (element['material' as keyof typeof element] != undefined) {
+                    if (element['material' as keyof typeof element]!.constructor.name == BackgroundMaterial.name) {
+                        // can't be fixed apparently, have to use ts ignore in prod
+                        var fixedElement = element['material' as keyof typeof element] as BackgroundMaterial
 
-                    compute(fixedElement, state)
-                    fixedElement.uniforms.canvasRes.value = canvasRes
-                    fixedElement.uniforms.imageRes.value = textureResolution
-                    fixedElement.uniforms.time.value = state.clock.elapsedTime
+                        backgroundElement.current = fixedElement
+                    }
                 }
-            }
-        })
+            })
+        }
+        else
+        {
+            var canvasRes = new THREE.Vector2(0.0, 0.0);
+            state.gl.getSize(canvasRes)
+            compute(backgroundElement.current, state)
+            backgroundElement.current.uniforms.canvasRes.value = canvasRes
+            backgroundElement.current.uniforms.imageRes.value = textureResolution
+            backgroundElement.current.uniforms.time.value = state.clock.elapsedTime
+        }
     })
 
     return (

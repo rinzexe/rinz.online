@@ -27,7 +27,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
                     border: '1px solid rgb(255, 255, 255)'
                 }}
             />
-    {children}
+            {children}
         </>
     )
 }
