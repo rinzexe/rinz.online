@@ -41,9 +41,7 @@ void main() {
 
     vec3 color = texture2D(tex, uv).xyz;
 
-    vec2 reviewInputUv = (vUv  * (1.0 * mix(1.0, 1.0 - distance(position.y, pow(offsetUv.y, 2.0)) * 0.1, clamp(area, 0.0, 1.0))));
-
-    vec2 reviewUv = reviewInputUv + (0.0 - (snoise(vec3(reviewInputUv * 8810.0, time / 1.0)) * snoise(vec3(reviewInputUv * 10.0, time / 10.0)) * pow(distance(position, (reviewInputUv - 0.5) * 2.0), 2.0)) / 95.0);
+    vec2 reviewUv = (vUv  * (1.0 * mix(1.0, 1.0 - distance(position.y, pow(offsetUv.y, 2.0)) * 0.1, clamp(area, 0.0, 1.0))));
 
     vec3 reviewColor = texture2D(reviewTex, reviewUv).xyz * clamp(area, 0.0, 25.0);
 

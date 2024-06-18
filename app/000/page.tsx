@@ -94,9 +94,7 @@ export default function Page() {
             <CameraController targetY={0} />
             <UIkit onWheel={handleWheel}>
                 <Container flexGrow={1} width={vw} height={vh} backgroundColor="white" flexDirection="column" >
-                    <Background compute={compute} source="/images/20.png" fragment={backgroundFragment} uniforms={{ transition: { value: 0 }, mouse: { value: new THREE.Vector2(0, 0) }, loadedPage: { value: null }, currentPage: { value: null }, loadedRes: { value: new THREE.Vector2(0, 0) }, currentRes: { value: new THREE.Vector2(0, 0) } }} props={{ flexGrow: 1, zIndexOffset: -11, positionType: "absolute", width: "100%", height: "100%" }}>
-                        <Container />
-                    </Background>
+                    <Background compute={compute} source="/images/20.png" fragment={backgroundFragment} uniforms={{ transition: { value: 0 }, mouse: { value: new THREE.Vector2(0, 0) }, loadedPage: { value: null }, currentPage: { value: null }, loadedRes: { value: new THREE.Vector2(0, 0) }, currentRes: { value: new THREE.Vector2(0, 0) } }} props={{ flexGrow: 1, zIndexOffset: -11, positionType: "absolute", width: "100%", height: "100%" }} />
                     <Container zIndexOffset={10} width="100%" height="100%" positionType="absolute" >
                         <UI currentWheel={currentWheel} enterTextRef={enterTextRef} />
                     </Container>

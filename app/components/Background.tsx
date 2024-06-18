@@ -4,9 +4,9 @@ import { Container } from '@react-three/uikit';
 import { ReactNode, useMemo, useRef } from 'react';
 import * as THREE from 'three'
 
+interface BackgroundProps { source: string, fragment: string, uniforms: any, children?: ReactNode, compute: (element: any, state: any) => void, props: any }
 
-
-export default function Background({ source, fragment, uniforms, compute, children, props }: { source: string, fragment: string, uniforms: any, children: ReactNode, compute: (element: any, state: any) => void, props: any }) {
+export default function Background({ source, fragment, uniforms, compute, children, props }: BackgroundProps) {
     const vw = useThree().size.width;
     const vh = useThree().size.height;
 
@@ -48,8 +48,7 @@ export default function Background({ source, fragment, uniforms, compute, childr
                 }
             })
         }
-        else
-        {
+        else {
             var canvasRes = new THREE.Vector2(0.0, 0.0);
             state.gl.getSize(canvasRes)
             compute(backgroundElement.current, state)

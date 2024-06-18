@@ -41,9 +41,9 @@ void main() {
 
     vec3 color = texture2D(tex, uv).xyz;
 
-    vec2 reviewUv = vUv + (0.0 - (snoise(vec3(vUv * 8810.0, time / 1.0)) * snoise(vec3(vUv * 10.0, time / 10.0)) * pow(distance(vec2(0.5), vUv), 2.0)) / 5.0);
+    vec2 reviewUv = vUv;
 
-    vec3 reviewColor = texture2D(reviewTex, reviewUv).xyz * (area);
+    vec3 reviewColor = texture2D(reviewTex, reviewUv).xyz * clamp(area, 0.0, 15.0);
 
     color += reviewColor;
 

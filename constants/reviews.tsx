@@ -49,11 +49,6 @@ export const visualNovelReviews: ReviewType[] = [
 
 export const gameReviews: ReviewType[] = [
     {
-        title: "Lego Ninjago",
-        cover: "z",
-        overall: "10"
-    },
-    {
         title: "Elden Ring",
         cover: "z",
         overall: "8"

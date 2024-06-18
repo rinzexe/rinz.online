@@ -15,6 +15,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
                         <TransitionManager>
                             {children}
                         </TransitionManager>
+                        <Stats />
                     </Canvas>
                 </Suspense>
             </div>

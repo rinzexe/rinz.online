@@ -13,23 +13,6 @@ function lerp(a: number, b: number, alpha: number) {
   return a + alpha * (b - a)
 }
 
-const useMousePosition = () => {
-  const [
-    mousePosition,
-    setMousePosition
-  ] = useState({ x: 0, y: 0 });
-  useEffect(() => {
-    const updateMousePosition = (ev: any) => {
-      setMousePosition({ x: ev.clientX * window.devicePixelRatio, y: ev.clientY * window.devicePixelRatio });
-    };
-    window.addEventListener('mousemove', updateMousePosition);
-    return () => {
-      window.removeEventListener('mousemove', updateMousePosition);
-    };
-  }, []);
-  return mousePosition;
-};
-
 var _density: any;
 var _velocity: any;
 var _pressure: any;
@@ -41,6 +24,7 @@ class FluidEffect extends Effect {
     uniformMap.set('velocity', new Uniform(null))
     uniformMap.set('pressure', new Uniform(null))
     uniformMap.set('transition', new Uniform(1))
+    uniformMap.set('show', new Uniform(true))
     uniformMap.set('mouse', new Uniform(new Vector2(0.0, 0.0)))
     super('FluidEffect', fluidShader.fragment, {
       uniforms: uniformMap
@@ -83,18 +67,24 @@ interface Splats {
 }
 
 export function PostProcessing({ transitionStage }: { transitionStage: any }) {
-  const [prevMouse, setPrevMouse] = useState({ x: 0, y: 0 });
-  const [mouseDelta, setMouseDelta] = useState({ x: 0, y: 0 });
+
+  const lastFrameTime = useRef(0);
+  const badFrameCount = useRef({ count: 0, lastTime: 0 });
+
+  const [show, setShow] = useState(true)
+
+  const prevMouse = useRef({ x: 0, y: 0 });
+  const mouseDelta = useRef({ x: 0, y: 0 });
   const [transitionStart, setTransitionStart] = useState(0);
   const [prevTransitionStage, setPrevTransitionStage] = useState("fadeIn");
 
   const fluidRef = useRef<FluidEffect>(null);
 
-  const mousePos = useMousePosition();
-
   const width = useThree((state) => state.gl.domElement.width);
   const height = useThree((state) => state.gl.domElement.height);
   const renderer = useThree((state) => state.gl);
+
+  console.log("rerender")
 
   const simManager = useMemo(
     () => new FluidSim(width, height, renderer, settings),
@@ -108,16 +98,33 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
   Fluid.displayName = "Fluid";
 
   useFrame((state, delta) => {
-    setMouseDelta({ x: mousePos.x - prevMouse.x, y: mousePos.y - prevMouse.y });
+    // testing level of detail feature, to be rewritten later
+    console.log(state.clock.elapsedTime - lastFrameTime.current)
+    console.log(badFrameCount.current)
+    console.log(show)
+    if (show == true && state.clock.elapsedTime - lastFrameTime.current > 0.015) {
+      badFrameCount.current.count++;
+      if (state.clock.elapsedTime - badFrameCount.current.lastTime > 1) {
+        badFrameCount.current.count = 0;
+        console.log("reset")
+      }
+      if (badFrameCount.current.count > 5) {
+        setShow(false);
+      }
+      badFrameCount.current.lastTime = state.clock.elapsedTime;
+    }
+
+    const mousePos = new Vector2((state.pointer.x / 2 + 0.5) * state.size.width, (1 - (state.pointer.y / 2 + 0.5)) * state.size.height)
+    prevMouse.current = { x: mousePos.x - prevMouse.current.x, y: mousePos.y - prevMouse.current.y };
+    mouseDelta.current = { x: lerp(mouseDelta.current.x, prevMouse.current.x, 0.8), y: lerp(mouseDelta.current.y, prevMouse.current.y, 0.8) }
     var mouseMultiplier = 10;
-    var splats = [{ x: mousePos.x, y: mousePos.y, dx: mouseDelta.x / mouseMultiplier, dy: mouseDelta.y / mouseMultiplier, radius: 0.0001 }];
+    var splats = [{ x: mousePos.x, y: mousePos.y, dx: mouseDelta.current.x / mouseMultiplier, dy: mouseDelta.current.y / mouseMultiplier, radius: 0.0005 }];
 
     state.gl.autoClear = false;
 
     if (transitionStage == "fadeOut" && prevTransitionStage == "fadeIn") {
       setTransitionStart(state.clock.elapsedTime);
       setPrevTransitionStage("fadeOut");
-      console.log("fadeout started")
     }
 
     if (prevTransitionStage == "fadeOut" && transitionStage == "fadeIn") {
@@ -128,6 +135,11 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
     // another dogshit workaround, don't touch until found a better solution
     if (fluidRef.current != null) {
       var uTransition = fluidRef.current.uniforms.get('transition') ?? { value: true };
+      var uShow = fluidRef.current.uniforms.get('show') ?? { value: true };
+
+      if (show == false) {
+        uShow.value = false
+      }
 
       if (prevTransitionStage == "fadeIn") {
         var value = 1 - (state.clock.elapsedTime - transitionStart)
@@ -149,17 +161,22 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
       }
     }
 
-    simManager.compute(splats);
+    if (show == true) {
+      simManager.compute(splats);
+    }
     state.gl.setRenderTarget(null);
 
-    setPrevMouse(mousePos);
+    prevMouse.current = mousePos;
+    lastFrameTime.current = state.clock.elapsedTime;
   });
+
 
   return (
     <EffectComposer>
       <Fluid ref={fluidRef} density={simManager.densityTexture} velocity={simManager.velocityTexture} pressure={simManager.pressureTexture} />
     </EffectComposer>
   )
+
 }
 
 var fluidShader =
@@ -266,6 +283,8 @@ float snoise(vec3 v)
 
     uniform float transition;
 
+    uniform bool show;
+
     uniform vec2 mouse;
 
     float T_FREQUENCY = 5.0;
@@ -304,18 +323,13 @@ float snoise(vec3 v)
     {
         vec2 centeredUv = uv * 2.0 - vec2(1.0);
 
-        float transitionValue = distance(mouse, centeredUv) + 1.0  - transition * 1.5;
+        vec4 color = inputColor;
+        if (show == true)
+        {
+          color = fluidDistortion(uv); 
+        }
 
-        float transitionNoise = (snoise(vec3(uv * T_FREQUENCY, 0.0)) / T_FEATHER);
-
-        vec2 transitionUv = cramp(transitionValue + transitionNoise, 10.0) * centeredUv;
-
-        vec2 uncenteredUv = transitionUv * 0.5 + vec2(0.5);
-
-
-        vec4 fluidDistortionColor = fluidDistortion(uv); 
-
-        outputColor = fluidDistortionColor * vec4(1.0 - transition, 1.0 - transition, 1.0 - transition, 1.0);
+        outputColor = color * vec4(1.0);
     }
     `
 }
