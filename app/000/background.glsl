@@ -48,7 +48,7 @@ void main() {
 
     float sinTransition = abs(sin(transition - floor(transition)));
 
-    float finalTransition = floor(vUv.y + sinTransition + (cnoise2(vec2(round(vUv.x * 120.0) * sin(vUv.x * 10.0), vUv.y)) * (0.5 - abs(sinTransition - 0.5))));
+    float finalTransition = floor(vUv.y + sinTransition + (cnoise2(vec2(sin(vUv.x * 1.0), vUv.y)) * (0.5 - abs(sinTransition - 0.5))));
 
     vec3 color = mix(currentColor, loadedColor, finalTransition);
 
