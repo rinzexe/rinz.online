@@ -207,7 +207,7 @@ function Projects() {
       <Project
         title="SpireUI"
         subtitle="An avant-garde React component library"
-        description="I started SpireUI after realizing how many developers miss out on the power of three.js. I wanted to make it easier for developers to create beautiful 3D experiences. SpireUI is a React component library that allows you to create 3D experiences with ease. It's still in development, but you can check out the progress on the github page."
+        description="A collection of ideas, mostly artistic, stuff that you wouldn't find elsewhere. I've been working on this project for a few weeks, slowly developing the components as well as the site itself. I hope I can bring some genuinue value to the React community with this project."
       />
     </Container>
   )
