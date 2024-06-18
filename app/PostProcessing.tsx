@@ -71,7 +71,7 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
   const lastFrameTime = useRef(0);
   const badFrameCount = useRef({ count: 0, lastTime: 0 });
 
-  const [show, setShow] = useState(true)
+  const show = useRef(true)
 
   const prevMouse = useRef({ x: 0, y: 0 });
   const mouseDelta = useRef({ x: 0, y: 0 });
@@ -99,17 +99,14 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
 
   useFrame((state, delta) => {
     // testing level of detail feature, to be rewritten later
-    console.log(state.clock.elapsedTime - lastFrameTime.current)
-    console.log(badFrameCount.current)
-    console.log(show)
-    if (show == true && state.clock.elapsedTime - lastFrameTime.current > 0.015) {
+    if (show.current == true && state.clock.elapsedTime - lastFrameTime.current > 0.015) {
       badFrameCount.current.count++;
       if (state.clock.elapsedTime - badFrameCount.current.lastTime > 1) {
         badFrameCount.current.count = 0;
         console.log("reset")
       }
-      if (badFrameCount.current.count > 5) {
-        setShow(false);
+      if (badFrameCount.current.count > 25) {
+        show.current = false;
       }
       badFrameCount.current.lastTime = state.clock.elapsedTime;
     }
@@ -137,7 +134,7 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
       var uTransition = fluidRef.current.uniforms.get('transition') ?? { value: true };
       var uShow = fluidRef.current.uniforms.get('show') ?? { value: true };
 
-      if (show == false) {
+      if (show.current == false) {
         uShow.value = false
       }
 
@@ -161,7 +158,7 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
       }
     }
 
-    if (show == true) {
+    if (show.current == true) {
       simManager.compute(splats);
     }
     state.gl.setRenderTarget(null);

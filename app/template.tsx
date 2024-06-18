@@ -10,7 +10,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
         <>
             <div className="lg:block hidden">
                 <Suspense fallback={<LoadingScreen />}>
-                    {/* <EntryScreen /> */}
+                    <EntryScreen />
                     <Canvas camera={{ far: 1111111 }} style={{ position: "fixed", height: "100vh" }} >
                         <TransitionManager>
                             {children}
@@ -35,7 +35,7 @@ function EntryScreen() {
         }
     }, [])
 
-    return show && <div className="bg-black fixed w-screen h-screen z-40 flex justify-center items-center">Loading...</div>
+    return show && <div className="bg-black fixed w-screen h-screen z-40 flex justify-center items-center"></div>
 }
 
 function LoadingScreen() {

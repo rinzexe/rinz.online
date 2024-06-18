@@ -24,20 +24,25 @@ export default function Page() {
   const vh = useThree().size.height;
 
   const renderTextureRef = useRef<any>()
+  const scrollBarRef = useRef<any>()
 
-  const [targetY, setTargetY] = useState(0)
+  const targetY = useRef(0)
 
   const context = useContext(TransitionContext)
 
   const compute = useCallback((element: any, state: any) => {
     element.uniforms.reviewTex.value = renderTextureRef.current
     state.camera.position.z = vh / 154
-    state.camera.position.y = lerp(state.camera.position.y, targetY, 0.02);
+    state.camera.position.y = lerp(state.camera.position.y, targetY.current, 0.02);
   }, [targetY, renderTextureRef])
+
+  useFrame((state, delta) => {
+    scrollBarRef.current.setStyle({ height: `${Math.abs(targetY.current * 4.16)}%` })
+  })
 
 
   function handleWheel(e: any) {
-    setTargetY(Math.max(Math.min(targetY - e.deltaY * 0.01, 0), -24))
+    targetY.current = Math.max(Math.min(targetY.current - e.deltaY * 0.002, 0), -24)
   }
 
   return (
@@ -60,7 +65,7 @@ export default function Page() {
               <Container width="100%" height="100%" positionType="absolute" padding={100} flexDirection="column" alignItems="flex-start" justifyContent="center">
                 <Container width={10} backgroundColor="white" height="20%" >
                   <Container width="100%" height="100%" padding={3} backgroundColor="black">
-                    <Container width="100%" height={`${Math.abs(targetY * 4.16)}%`} padding={1} backgroundColor="white">
+                    <Container width="100%" ref={scrollBarRef} padding={1} backgroundColor="white">
                     </Container>
                   </Container>
                 </Container>
