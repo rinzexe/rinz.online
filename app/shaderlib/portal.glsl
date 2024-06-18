@@ -1,4 +1,5 @@
 #pragma glslify: centerNoiseMultipliers = require(../shaderlib/portalCenterNoiseMultipliers.glsl) 
+#pragma glslify: cnoise = require(glsl-noise/classic/3d) 
 
 // insanely unmanagable piece of garbage please rewrite this later before anyone finds this
 float area(vec2 uv, vec2 point, float time, float size, float amp) {

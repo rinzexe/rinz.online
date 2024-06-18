@@ -13,8 +13,7 @@ vec2 outputUv(vec2 inputUv, float time) {
 
     float globalNoise = cnoise(vec3(vec2(offsetUv.x * XFREQG, (offsetUv.y - time * TIMESCALEG)) * FREQG, time * EVOLUTIONSPEEDG)) * AMPG;
 
-    float noiseMultiplier = pow(distance(vec2(0.0, 1.0), vec2(0.0, offsetUv.y)), 3.0) / GLOBALDEPTH;
-    vec2 noisedUv = offsetUv * (2.0 + (noiseMultiplier + clamp(globalNoise, 0.0, 1.0)));
+    vec2 noisedUv = offsetUv * (2.0  + clamp(globalNoise, 0.0, 1.0));
 
     return noisedUv / 2.0 + 0.5;
 }
