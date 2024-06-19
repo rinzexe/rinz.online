@@ -10,7 +10,7 @@ interface Page {
 export const pages: Page[] = [
     {
         id: 1,
-        title: "Portfolio",
+        title: "About me",
         subtitle: "For employers",
         description: "A quick look into my skillset, experience and projects.",
         image: "/images/20.png",
