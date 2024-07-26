@@ -98,18 +98,6 @@ export function PostProcessing({ transitionStage }: { transitionStage: any }) {
   Fluid.displayName = "Fluid";
 
   useFrame((state, delta) => {
-    // testing level of detail feature, to be rewritten later
-    if (show.current == true && state.clock.elapsedTime - lastFrameTime.current > 0.015) {
-      badFrameCount.current.count++;
-      if (state.clock.elapsedTime - badFrameCount.current.lastTime > 1) {
-        badFrameCount.current.count = 0;
-        console.log("reset")
-      }
-      if (badFrameCount.current.count > 25) {
-        show.current = false;
-      }
-      badFrameCount.current.lastTime = state.clock.elapsedTime;
-    }
 
     const mousePos = new Vector2((state.pointer.x / 2 + 0.5) * state.size.width, (1 - (state.pointer.y / 2 + 0.5)) * state.size.height)
     prevMouse.current = { x: mousePos.x - prevMouse.current.x, y: mousePos.y - prevMouse.current.y };
